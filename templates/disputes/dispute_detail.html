@@ -1,0 +1,73 @@
+<div class="card-body">
+                <p><strong>Order:</strong> <a href="{% url 'order_detail' dispute.order.id %}">#{{ dispute.order.id }}</a></p>
+                <p><strong>Complainant:</strong> {{ dispute.complainant.username }}</p>
+                <p><strong>Created:</strong> {{ dispute.created_at|date:"M d, Y H:i" }}</p>
+                <p><strong>Status:</strong> {{ dispute.get_status_display }}</p>
+                <p><strong>Reason:</strong> {{ dispute.reason }}</p>
+                
+                {% if dispute.status == 'resolved' or dispute.status == 'closed' %}
+                <div class="resolution-info">
+                    <h4>Resolution</h4>
+                    <p>{{ dispute.resolution }}</p>
+                    <p><small>Resolved by {{ dispute.resolved_by.username }} on {{ dispute.resolved_at|date:"M d, Y H:i" }}</small></p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="dispute-messages">
+        <div class="card">
+            <div class="card-header">
+                <h3>Messages</h3>
+            </div>
+            <div class="card-body">
+                <div class="message-list">
+                    {% for message in dispute_messages %}
+                    <div class="message {% if message.sender == request.user %}message-sent{% else %}message-received{% endif %}">
+                        <div class="message-header">
+                            <span class="message-sender">{{ message.sender.username }}</span>
+                            <span class="message-time">{{ message.created_at|date:"M d, Y H:i" }}</span>
+                        </div>
+                        <div class="message-content">
+                            {{ message.message }}
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p class="no-messages">No messages yet.</p>
+                    {% endfor %}
+                </div>
+                
+                {% if dispute.status != 'closed' %}
+                <div class="message-form">
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <textarea name="message" class="form-control" rows="3" placeholder="Type your message here..."></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Send Message</button>
+                    </form>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="dispute-actions">
+        {% if dispute.status == 'open' or dispute.status == 'under_review' %}
+            {% if request.user.is_staff or request.user == dispute.order.seller %}
+            <a href="{% url 'resolve_dispute' dispute.id %}" class="btn btn-success">Resolve Dispute</a>
+            {% endif %}
+        {% endif %}
+        
+        {% if dispute.status == 'resolved' and request.user == dispute.complainant %}
+        <form method="post" action="{% url 'dispute_escalate' dispute.id %}" class="d-inline">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-warning">Escalate to Admin</button>
+        </form>
+        {% endif %}
+        
+        <a href="{% url 'dispute_list' %}" class="btn btn-secondary">Back to Disputes</a>
+    </div>
+</div>
+{% endblock %}

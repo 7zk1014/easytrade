@@ -1,0 +1,158 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="order-detail-container">
+    <h2>Order Details</h2>
+    
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+        <div class="message {% if message.tags %}{{ message.tags }}{% endif %}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    
+    <div class="order-info">
+        <div class="order-header">
+            <h3>Order #{{ order.id }}</h3>
+            <div class="order-date">Order Date: {{ order.created_at|date:"Y-m-d H:i" }}</div>
+        </div>
+        
+        <div class="order-status-section">
+            <div class="status-item">
+                <span class="status-label">Order Status:</span>
+                <span class="status-value status-{{ order.status }}">{{ order.get_status_display }}</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">Payment Status:</span>
+                <span class="status-value status-{{ order.payment_status }}">{{ order.get_payment_status_display }}</span>
+            </div>
+        </div>
+        
+        <div class="order-details">
+            <div class="detail-section">
+                <h4>Shipping Information</h4>
+                <p>{{ order.shipping_address|linebreaks }}</p>
+            </div>
+            
+            <div class="detail-section">
+                <h4>Payment Method</h4>
+                <p>{{ order.payment_method }}</p>
+                {% if order.payment_id %}
+                <p>Payment ID: {{ order.payment_id }}</p>
+                {% endif %}
+            </div>
+            
+            {% if order.notes %}
+            <div class="detail-section">
+                <h4>Order Notes</h4>
+                <p>{{ order.notes }}</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="order-items-section">
+        <h3>Order Items</h3>
+        <div class="order-items">
+            <table class="items-table">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Price</th>
+                        <th>Quantity</th>
+                        <th>Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in order_items %}
+                    <div class="col-md-6 mb-2">
+                        <div class="product-review-card">
+                            <div class="product-info">
+                                <img src="{{ item.product.image.url }}" alt="{{ item.product.title }}" class="img-thumbnail" width="50">
+                                 <span>{{ item.product.title }}</span>
+                                </div> 
+                                {% if item.has_review %}
+                                <a href="{% url 'add_review' item.product.id %}" class="btn btn-sm btn-outline-secondary">
+                                    <i class="fas fa-edit"></i> Edit Review
+                                </a>
+                                {% else %}
+                                <a href="{% url 'add_review' item.product.id %}" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-star"></i> Review
+                                </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="3" class="total-label">Total:</td>
+                        <td class="total-price">¥{{ order.total_price }}</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+
+    {% if order.status == 'completed' or order.status == 'delivered' %}
+    <div class="order-actions">
+        {% if not order.seller_reviews.exists %}
+        <a href="{% url 'add_seller_review_from_order' order.items.first.product.seller.id order.id %}" class="btn btn-outline-primary">
+            <i class="fas fa-star"></i> Rate Seller
+        </a>
+        {% else %}
+        <a href="{% url 'add_seller_review_from_order' order.items.first.product.seller.id order.id %}" class="btn btn-outline-secondary">
+            <i class="fas fa-edit"></i> Edit Seller Review
+        </a>
+        {% endif %}
+
+        <div class="product-review-actions mt-3">
+            <h5>Rate Products:</h5>
+            <div class="row">
+                {% for item in order_items %}
+                <div class="col-md-6 mb-2">
+                    <div class="product-review-card">
+                        <div class="product-info">
+                            <img src="{{ item.product.image.url }}" alt="{{ item.product.title }}" class="img-thumbnail" width="50">
+                            <span>{{ item.product.title }}</span>
+                        </div>
+                        {% if item.product.reviews.filter(reviewer=request.user).exists %}
+                        <a href="{% url 'add_review' item.product.id %}" class="btn btn-sm btn-outline-secondary">
+                            <i class="fas fa-edit"></i> Edit Review
+                        </a>
+                        {% else %}
+                        <a href="{% url 'add_review' item.product.id %}" class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-star"></i> Review
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    <div class="order-actions">
+        <a href="{% url 'order_history' %}" class="btn-back">Back to Order List</a>
+        {% if order.status == 'pending' %}
+        <form method="post" action="{% url 'cancel_order' order.id %}" class="cancel-form" onsubmit="return confirm('Are you sure you want to cancel this order?');">
+            {% csrf_token %}
+            <button type="submit" class="btn-cancel-order">Cancel Order</button>
+        </form>
+        {% endif %}
+        {% if order.status != 'pending' and order.status != 'cancelled' %}
+            {% if not order.disputes.exists %}
+            <a href="{% url 'create_dispute' order.id %}" class="btn btn-warning">
+                <i class="fas fa-exclamation-triangle"></i> Report Issue
+            </a>
+            {% else %}
+            <a href="{% url 'dispute_detail' order.disputes.first.id %}" class="btn btn-outline-warning">
+                <i class="fas fa-exclamation-triangle"></i> View Dispute
+            </a>
+            {% endif %}
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container">
+    <div class="row">
+        <!-- 卖家基本信息部分 -->
+        <div class="col-md-4">
+            <div class="seller-info-card">
+                <div class="seller-avatar">
+                    {% if seller.profile_picture %}
+                    <img src="{{ seller.profile_picture.url }}" alt="{{ seller.username }}">
+                    {% else %}
+                    <div class="avatar-placeholder"><i class="fas fa-user"></i></div>
+                    {% endif %}
+                </div>
+                <h2>{{ seller.username }}</h2>
+                <p>Member since: {{ seller.date_joined|date:"F Y" }}</p>
+                <p>Total products: {{ seller.products.count }}</p>
+            </div>
+        </div>
+
+        <!-- 评价摘要和商品列表部分 -->
+        <div class="col-md-8">
+            <!-- 评价摘要部分 -->
+            <div class="seller-rating-section">
+                <h3>Seller Ratings</h3>
+                {% with seller_reviews=seller.seller_reviews.all %}
+                <div class="seller-rating-summary">
+                    <div class="rating-stars">
+                        {% for i in "12345" %}
+                            {% if forloop.counter <= avg_rating %}
+                                <i class="fas fa-star"></i>
+                            {% else %}
+                                <i class="far fa-star"></i>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                    <span class="rating-value">{{ avg_rating|floatformat:1 }} out of 5</span>
+                    <span class="review-count">({{ seller_reviews|length }} reviews)</span>
+                </div>
+
+                <div class="recent-seller-reviews">
+                    {% with recent_reviews=seller_reviews|slice:":3" %}
+                    {% if recent_reviews %}
+                        {% for review in recent_reviews %}
+                        <div class="review-card">
+                            <div class="review-header">
+                                <div class="reviewer-info">
+                                    <span class="reviewer-name">{{ review.reviewer.username }}</span>
+                                    {% if review.order %}
+                                    <span class="verified-badge">
+                                        <i class="fas fa-check-circle"></i> Verified Buyer
+                                    </span>
+                                    {% endif %}
+                                </div>
+                                <div class="review-date">{{ review.created_at|date:"F d, Y" }}</div>
+                            </div>
+                            <div class="review-rating">
+                                {% for i in "12345" %}
+                                    {% if forloop.counter <= review.rating %}
+                                        <i class="fas fa-star"></i>
+                                    {% else %}
+                                        <i class="far fa-star"></i>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                            <div class="review-content">
+                                {{ review.comment|linebreaks }}
+                            </div>
+                        </div>
+                        {% endfor %}
+                        
+                        {% if seller_reviews|length > 3 %}
+                        <div class="view-all-reviews">
+                            <a href="{% url 'seller_reviews' seller.id %}" class="btn btn-outline-primary">
+                                View All Reviews ({{ seller_reviews|length }})
+                            </a>
+                        </div>
+                        {% endif %}
+                    {% else %}
+                        <div class="no-reviews">
+                            <p>No reviews yet for this seller.</p>
+                            {% if request.user != seller and request.user.is_authenticated %}
+                            <a href="{% url 'add_seller_review' seller.id %}" class="btn btn-outline-primary">
+                                Be the first to review
+                            </a>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                    {% endwith %}
+                </div>
+                {% endwith %}
+            </div>
+
+            <!-- 卖家商品列表 -->
+            <div class="seller-products">
+                <h3>Products by this Seller</h3>
+                <div class="row">
+                    {% for product in seller.products.all|slice:":6" %}
+                    <div class="col-md-4 mb-4">
+                        <div class="product-card">
+                            <a href="{% url 'product_detail' product.id %}">
+                                {% if product.image %}
+                                <img src="{{ product.image.url }}" alt="{{ product.title }}">
+                                {% else %}
+                                <div class="no-image"><i class="fas fa-image"></i></div>
+                                {% endif %}
+                                <h5>{{ product.title }}</h5>
+                                <p class="price">£{{ product.price }}</p>
+                            </a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% if seller.products.count > 6 %}
+                <div class="text-center mt-3">
+                    <a href="{% url 'home' %}?seller={{ seller.id }}" class="btn btn-outline-primary">
+                        View All Products
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

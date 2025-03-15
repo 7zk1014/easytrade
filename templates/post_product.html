@@ -1,0 +1,224 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/post-product.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="post-product-container">
+    <div class="page-header">
+        <h1>Sell an Item</h1>
+        <p class="subtitle">List your item for sale on EasyTrade</p>
+    </div>
+    
+    <div class="form-progress">
+        <div class="progress-step active">
+            <div class="step-number">1</div>
+            <div class="step-label">Item Details</div>
+        </div>
+        <div class="progress-step active">
+            <div class="step-number">2</div>
+            <div class="step-label">Description</div>
+        </div>
+        <div class="progress-step active">
+            <div class="step-number">3</div>
+            <div class="step-label">Photos</div>
+        </div>
+        <div class="progress-step">
+            <div class="step-number">4</div>
+            <div class="step-label">Review & List</div>
+        </div>
+    </div>
+    
+    <div class="form-container">
+        <form method="post" enctype="multipart/form-data" class="product-form">
+            {% csrf_token %}
+            
+            <div class="form-section">
+                <h3>Item Details</h3>
+                
+                <div class="form-group">
+                    <label for="{{ form.title.id_for_label }}">Title*</label>
+                    {{ form.title }}
+                    {% if form.title.errors %}
+                    <div class="form-error">{{ form.title.errors }}</div>
+                    {% endif %}
+                    <div class="form-help">Create a clear, concise title that describes your item.</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="{{ form.category.id_for_label }}">Category*</label>
+                    {{ form.category }}
+                    {% if form.category.errors %}
+                    <div class="form-error">{{ form.category.errors }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group">
+                    <label for="{{ form.price.id_for_label }}">Price (£)*</label>
+                    {{ form.price }}
+                    {% if form.price.errors %}
+                    <div class="form-error">{{ form.price.errors }}</div>
+                    {% endif %}
+                    <div class="form-help">Set a competitive price to attract buyers.</div>
+                </div>
+            </div>
+            
+            <div class="form-section">
+                <h3>Item Description</h3>
+                
+                <div class="form-group">
+                    <label for="{{ form.description.id_for_label }}">Description*</label>
+                    {{ form.description }}
+                    {% if form.description.errors %}
+                    <div class="form-error">{{ form.description.errors }}</div>
+                    {% endif %}
+                    <div class="form-help">
+                        <p>Include details such as:</p>
+                        <ul>
+                            <li>Brand, model, and specifications</li>
+                            <li>Condition and any defects</li>
+                            <li>Age and history of the item</li>
+                            <li>Dimensions or size information</li>
+                            <li>Reason for selling</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-section">
+                <h3>Item Photos</h3>
+                
+                <div class="form-group">
+                    <label for="{{ form.image.id_for_label }}">Upload Image</label>
+                    <div class="image-upload-container">
+                        <div class="image-preview" id="imagePreview">
+                            <div class="no-image">
+                                <i class="fas fa-image"></i>
+                                <p>No image selected</p>
+                            </div>
+                        </div>
+                        <div class="file-input-wrapper">
+                            <div class="file-input-button">Choose Image</div>
+                            <span class="file-input-text" id="fileInputText">No file chosen</span>
+                            {{ form.image }}
+                            {% if form.image.errors %}
+                            <div class="form-error">{{ form.image.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="form-help">
+                        <p>Good photos increase your chances of selling:</p>
+                        <ul>
+                            <li>Use good lighting and a clean background</li>
+                            <li>Show the item from multiple angles</li>
+                            <li>Include photos of any defects or damage</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-actions">
+                <button type="submit" class="btn-submit">List Item for Sale</button>
+                <a href="{% url 'home' %}" class="btn-cancel">Cancel</a>
+            </div>
+        </form>
+    </div>
+    
+    <div class="selling-tips">
+        <h3>Tips for Successful Selling</h3>
+        <div class="tips-content">
+            <div class="tip">
+                <div class="tip-icon"><i class="fas fa-camera"></i></div>
+                <div class="tip-text">
+                    <h4>Use Quality Photos</h4>
+                    <p>Clear, well-lit photos from multiple angles help buyers see exactly what they're getting.</p>
+                </div>
+            </div>
+            <div class="tip">
+                <div class="tip-icon"><i class="fas fa-pencil-alt"></i></div>
+                <div class="tip-text">
+                    <h4>Write Detailed Descriptions</h4>
+                    <p>Include all relevant details about condition, specifications, and history.</p>
+                </div>
+            </div>
+            <div class="tip">
+                <div class="tip-icon"><i class="fas fa-tag"></i></div>
+                <div class="tip-text">
+                    <h4>Price Competitively</h4>
+                    <p>Research similar items to set a fair price that will attract buyers.</p>
+                </div>
+            </div>
+            <div class="tip">
+                <div class="tip-icon"><i class="fas fa-comments"></i></div>
+                <div class="tip-text">
+                    <h4>Respond Quickly</h4>
+                    <p>Answer questions and offers promptly to keep potential buyers interested.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Image preview functionality
+    const imageInput = document.getElementById('{{ form.image.id_for_label }}');
+    const imagePreview = document.getElementById('imagePreview');
+    const fileInputText = document.getElementById('fileInputText');
+    
+    if (imageInput && imagePreview) {
+        imageInput.addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    imagePreview.innerHTML = `<img src="${e.target.result}" alt="Image Preview">`;
+                }
+                
+                reader.readAsDataURL(this.files[0]);
+                
+                // Update file name display
+                if (fileInputText) {
+                    fileInputText.textContent = this.files[0].name;
+                }
+            } else {
+                imagePreview.innerHTML = `
+                    <div class="no-image">
+                        <i class="fas fa-image"></i>
+                        <p>No image selected</p>
+                    </div>
+                `;
+                
+                if (fileInputText) {
+                    fileInputText.textContent = 'No file chosen';
+                }
+            }
+        });
+    }
+    
+    // Form validation feedback
+    const form = document.querySelector('.product-form');
+    const requiredInputs = form.querySelectorAll('input[required], textarea[required], select[required]');
+    
+    requiredInputs.forEach(input => {
+        input.addEventListener('blur', function() {
+            if (!this.value.trim()) {
+                this.style.borderColor = '#dc3545';
+            } else {
+                this.style.borderColor = '#ced4da';
+            }
+        });
+        
+        input.addEventListener('input', function() {
+            if (this.value.trim()) {
+                this.style.borderColor = '#ced4da';
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

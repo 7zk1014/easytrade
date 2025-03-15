@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/offers.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="offers-container">
+    <h2>My Offers</h2>
+    
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+        <div class="message {% if message.tags %}{{ message.tags }}{% endif %}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    
+    
+    <div class="offers-tabs">
+        <button class="tab-button active" onclick="openTab(event, 'received')">Received Offers</button>
+        <button class="tab-button" onclick="openTab(event, 'sent')">Sent Offers</button>
+    </div>
+    
+    <div id="received" class="tab-content" style="display: block;">
+        <h3>Received Offers</h3>
+        {% if received_offers %}
+        <table class="offers-table">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Buyer</th>
+                    <th>Offer Price</th>
+                    <th>Message</th>
+                    <th>Status</th>
+                    <th>Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for offer in received_offers %}
+                <tr>
+                    <td>
+                        <a href="{% url 'product_detail' offer.product.id %}">{{ offer.product.title }}</a>
+                    </td>
+                    <td>{{ offer.buyer.username }}</td>
+                    <td>£{{ offer.offer_price }}</td>
+                    <td>{{ offer.message|default:"None" }}</td>
+                    <td>{{ offer.get_offer_status_display }}</td>
+                    <td>{{ offer.created_at|date:"Y-m-d H:i" }}</td>
+                    <td>
+                        {% if offer.offer_status == 'pending' %}
+                        <form method="post" action="{% url 'accept_offer' offer.id %}" class="inline-form">
+                            {% csrf_token %}
+                            <button type="submit" class="btn-accept">Accept</button>
+                        </form>
+                        <form method="post" action="{% url 'reject_offer' offer.id %}" class="inline-form">
+                            {% csrf_token %}
+                            <button type="submit" class="btn-reject">Reject</button>
+                        </form>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p class="no-offers">You haven't received any offers yet</p>
+        {% endif %}
+    </div>
+    
+    <div id="sent" class="tab-content">
+        <h3>Sent Offers</h3>
+        {% if sent_offers %}
+        <table class="offers-table">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Seller</th>
+                    <th>Offer Price</th>
+                    <th>Message</th>
+                    <th>Status</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for offer in sent_offers %}
+                <tr>
+                    <td>
+                        <a href="{% url 'product_detail' offer.product.id %}">{{ offer.product.title }}</a>
+                    </td>
+                    <td>{{ offer.product.seller.username }}</td>
+                    <td>£{{ offer.offer_price }}</td>
+                    <td>{{ offer.message|default:"None" }}</td>
+                    <td>{{ offer.get_offer_status_display }}</td>
+                    <td>{{ offer.created_at|date:"Y-m-d H:i" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p class="no-offers">You haven't made any offers yet</p>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+    function openTab(evt, tabName) {
+        var i, tabContent, tabButtons;
+        
+        // Hide all tab content
+        tabContent = document.getElementsByClassName("tab-content");
+        for (i = 0; i < tabContent.length; i++) {
+            tabContent[i].style.display = "none";
+        }
+        
+        // Remove "active" class from all tab buttons
+        tabButtons = document.getElementsByClassName("tab-button");
+        for (i = 0; i < tabButtons.length; i++) {
+            tabButtons[i].className = tabButtons[i].className.replace(" active", "");
+        }
+        
+        // Show current tab and add "active" class to the button
+        document.getElementById(tabName).style.display = "block";
+        evt.currentTarget.className += " active";
+    }
+</script>
+{% endblock %}

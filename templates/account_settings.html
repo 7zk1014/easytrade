@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h2>Account Settings</h2>
+
+    <!-- 修改个人资料 -->
+    <h3>Edit Profile</h3>
+    <form method="POST" action="{% url 'account_settings' %}" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ profile_form.as_p }}
+        <button type="submit" name="update_profile">Save Changes</button>
+    </form>
+
+    <hr>
+
+    <!-- 修改密码 -->
+    <h3>Change Password</h3>
+    <form method="POST" action="{% url 'account_settings' %}">
+        {% csrf_token %}
+        {{ password_form.as_p }}
+        <button type="submit" name="change_password">Change Password</button>
+    </form>
+
+    <hr>
+
+    <!-- 退出账户 -->
+    <a href="{% url 'logout' %}" class="btn btn-danger">Log Out</a>
+</div>
+{% endblock %}

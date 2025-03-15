@@ -1,0 +1,45 @@
+# EasyTrade
+
+A Django-based e-commerce platform for buying and selling products.
+
+## Setup Instructions
+
+1. First, create a `.env` file based on the `.env.example` template and configure your MySQL database settings.
+
+2. Create and activate a virtual environment:
+```
+python -m venv venv
+venv\Scripts\activate  # For Windows CMD
+# OR
+source venv/bin/activate  # For Unix/Linux
+```
+
+3. Install dependencies:
+```
+pip install -r requirements.txt
+```
+
+4. Run database migrations:
+```
+python manage.py makemigrations
+python manage.py migrate
+```
+
+5. (Optional) Create a superuser admin account:
+```
+python manage.py createsuperuser
+```
+
+6. Start the development server:
+```
+python manage.py runserver
+```
+
+## Features
+- User authentication (buyers and sellers)
+- Product listing and management
+- Shopping cart functionality
+- Order processing
+- Messaging system
+- Offer negotiation
+- Payment simulation

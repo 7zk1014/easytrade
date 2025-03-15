@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="order-history-container">
+    <div class="page-header">
+        <h1>My Orders</h1>
+    </div>
+    
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+        <div class="message {% if message.tags %}{{ message.tags }}{% endif %}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    
+    {% if orders %}
+    <div class="order-filter">
+        <div class="filter-controls">
+            <select id="orderStatusFilter" class="status-filter">
+                <option value="all">All Orders</option>
+                <option value="pending">Pending</option>
+                <option value="paid">Paid</option>
+                <option value="shipped">Shipped</option>
+                <option value="delivered">Delivered</option>
+                <option value="cancelled">Cancelled</option>
+            </select>
+            <div class="search-box">
+                <input type="text" id="orderSearch" placeholder="Search orders...">
+                <button type="button"><i class="fas fa-search"></i></button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="orders-list">
+        {% for order in orders %}
+        <div class="order-card" data-status="{{ order.status }}">
+            <div class="order-header">
+                <div class="order-info">
+                    <h3>Order #{{ order.id }}</h3>
+                    <p class="order-date">Placed on {{ order.created_at|date:"F d, Y" }}</p>
+                </div>
+                <div class="order-status-info">
+                    <span class="order-status status-{{ order.status }}">
+                        {{ order.get_status_display }}
+                    </span>
+                    <span class="payment-status status-{{ order.payment_status }}">
+                        {{ order.get_payment_status_display }}
+                    </span>
+                </div>
+            </div>
+            
+            <div class="order-summary">
+                <div class="order-items-count">
+                    <i class="fas fa-box"></i>
+                    <span>{{ order.item_count }} item{% if order.item_count != 1 %}s{% endif %}</span>
+                </div>
+                <div class="order-total">
+                    <span class="total-label">Total:</span>
+                    <span class="total-amount">£{{ order.total_price }}</span>
+                </div>
+            </div>
+            
+            <div class="order-actions">
+                <a href="{% url 'order_detail' order.id %}" class="btn-view-details">
+                    <i class="fas fa-eye"></i> View Details
+                </a>
+                {% if order.status == 'pending' %}
+                <form method="post" action="{% url 'cancel_order' order.id %}" class="cancel-form" onsubmit="return confirm('Are you sure you want to cancel this order?');">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-cancel-order">
+                        <i class="fas fa-times"></i> Cancel Order
+                    </button>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="no-orders">
+        <div class="no-orders-content">
+            <div class="icon-container">
+                <i class="fas fa-shopping-bag"></i>
+            </div>
+            <h2>You haven't placed any orders yet</h2>
+            <p>When you place orders, they will appear here for you to track.</p>
+            <a href="{% url 'home' %}" class="btn-shop-now">Start Shopping</a>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Filter by status
+    const statusFilter = document.getElementById('orderStatusFilter');
+    const orderCards = document.querySelectorAll('.order-card');
+    
+    if (statusFilter) {
+        statusFilter.addEventListener('change', function() {
+            const selectedStatus = this.value;
+            
+            orderCards.forEach(card => {
+                if (selectedStatus === 'all' || card.getAttribute('data-status') === selectedStatus) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+    }
+    
+    // Search functionality
+    const searchInput = document.getElementById('orderSearch');
+    
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            
+            orderCards.forEach(card => {
+                const orderText = card.textContent.toLowerCase();
+                if (orderText.includes(searchTerm)) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+    }
+});
+</script>
+{% endblock %}
+{% endblock %} 

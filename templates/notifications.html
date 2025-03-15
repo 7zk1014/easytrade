@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/notifications.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="notifications-container">
+    <h2>Notifications</h2>
+    
+    {% if notifications %}
+    <div class="notification-list">
+        {% for notification in notifications %}
+        <div class="notification-item {% if not notification.is_read %}unread{% endif %}">
+            <div class="notification-content">
+                <p>{{ notification.message }}</p>
+                <span class="notification-time">{{ notification.created_at|date:"Y-m-d H:i" }}</span>
+            </div>
+            {% if not notification.is_read %}
+            <form method="post" action="{% url 'mark_notification_read' notification.id %}" class="mark-read-form">
+                {% csrf_token %}
+                <button type="submit" class="btn-mark-read">Mark as Read</button>
+            </form>
+            {% endif %}
+            {% if notification.related_offer %}
+            <a href="{% url 'view_offers' %}" class="view-offer-link">View Offer</a>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p class="no-notifications">You have no notifications</p>
+    {% endif %}
+</div>
+{% endblock %}

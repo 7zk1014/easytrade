@@ -1,0 +1,133 @@
+/* Disputes List Page */
+.disputes-list {
+    margin-top: 20px;
+}
+
+.dispute-card {
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 15px;
+    margin-bottom: 15px;
+    background-color: #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.dispute-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.dispute-status {
+    padding: 5px 10px;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    font-weight: bold;
+}
+
+.dispute-status.open {
+    background-color: #ffc107;
+    color: #212529;
+}
+
+.dispute-status.under_review {
+    background-color: #17a2b8;
+    color: #fff;
+}
+
+.dispute-status.resolved {
+    background-color: #28a745;
+    color: #fff;
+}
+
+.dispute-status.closed {
+    background-color: #6c757d;
+    color: #fff;
+}
+
+.dispute-status.escalated {
+    background-color: #dc3545;
+    color: #fff;
+}
+
+.dispute-details {
+    margin-bottom: 15px;
+}
+
+.dispute-actions {
+    margin-top: 20px;
+    display: flex;
+    gap: 10px;
+}
+
+/* Dispute Detail Page */
+.dispute-info {
+    margin-bottom: 20px;
+}
+
+.resolution-info {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid #eee;
+}
+
+.dispute-messages {
+    margin-bottom: 20px;
+}
+
+.message-list {
+    max-height: 400px;
+    overflow-y: auto;
+    margin-bottom: 20px;
+}
+
+.message {
+    padding: 10px 15px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    max-width: 80%;
+}
+
+.message-sent {
+    background-color: #dcf8c6;
+    margin-left: auto;
+}
+
+.message-received {
+    background-color: #f1f0f0;
+}
+
+.message-header {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    margin-bottom: 5px;
+}
+
+.message-sender {
+    font-weight: bold;
+}
+
+.message-time {
+    color: #777;
+}
+
+.message-content {
+    word-break: break-word;
+}
+
+.message-form {
+    margin-top: 20px;
+}
+
+/* Create and Resolve Dispute Pages */
+.order-summary, .dispute-form, .resolution-form {
+    margin-bottom: 20px;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}

@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="profile-header">
+        <h2>Hello, <strong>{{ user.username }}</strong></h2>
+        {% if user.profile_picture %}
+            <img src="{{ user.profile_picture.url }}" alt="Profile Picture" class="rounded-circle" width="50">
+        {% else %}
+            <img src="{% static 'default-avatar.png' %}" alt="Default Avatar" class="rounded-circle" width="50">
+        {% endif %}
+    </div>
+
+    <section>
+        <h3>My Products <a href="{% url 'my_products' %}">See all</a></h3>
+        <div class="row">
+            {% for product in user_products %}
+                <div class="col-md-3">
+                    <div class="card">
+                        {% if product.image %}
+                            <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.title }}">
+                        {% else %}
+                            <img src="{% static 'default-product.png' %}" class="card-img-top" alt="No Image">
+                        {% endif %}
+                        <div class="card-body">
+                            <h5 class="card-title">{{ product.title }}</h5>
+                            <p class="card-text">${{ product.price }}</p>
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                <p>You haven't posted any products yet.</p>
+            {% endfor %}
+        </div>
+    </section>
+</div>
+{% endblock %}

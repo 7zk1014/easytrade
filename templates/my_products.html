@@ -1,0 +1,176 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/my-products.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="my-products-container">
+    <div class="page-header">
+        <h1>My Listings</h1>
+        <div class="header-actions">
+            <a href="{% url 'post_product' %}" class="btn-primary">
+                <i class="fas fa-plus"></i> List New Item
+            </a>
+        </div>
+    </div>
+    
+    {% if user_products %}
+    <div class="product-management">
+        <div class="filter-controls">
+            <div class="search-box">
+                <input type="text" id="productSearch" placeholder="Search your listings...">
+                <button type="button"><i class="fas fa-search"></i></button>
+            </div>
+            <div class="sort-options">
+                <label for="sortProducts">Sort by:</label>
+                <select id="sortProducts">
+                    <option value="newest">Newest first</option>
+                    <option value="oldest">Oldest first</option>
+                    <option value="price-high">Price: high to low</option>
+                    <option value="price-low">Price: low to high</option>
+                    <option value="title">Title: A to Z</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="product-list">
+            <div class="product-grid">
+                {% for product in user_products %}
+                <div class="product-card" data-title="{{ product.title|lower }}" data-price="{{ product.price }}" data-date="{{ product.created_at|date:'U' }}">
+                    <div class="product-image">
+                        {% if product.image %}
+                        <img src="{{ product.image.url }}" alt="{{ product.title }}">
+                        {% else %}
+                        <div class="no-image">
+                            <i class="fas fa-image"></i>
+                            <p>No image</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-title">
+                            <a href="{% url 'product_detail' product.id %}">{{ product.title }}</a>
+                        </h3>
+                        <p class="product-price">£{{ product.price }}</p>
+                        <p class="product-category">{{ product.category }}</p>
+                        <p class="product-date">Listed on {{ product.created_at|date:"M d, Y" }}</p>
+                        
+                        <div class="product-stats">
+                            <div class="stat">
+                                <i class="fas fa-eye"></i>
+                                <span>{{ product.id|add:10 }} views</span>
+                            </div>
+                            <div class="stat">
+                                <i class="fas fa-shopping-cart"></i>
+                                <span>{{ product.id|add:2 }} in cart</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="product-actions">
+                        <a href="{% url 'edit_product' product.id %}" class="btn-edit">
+                            <i class="fas fa-edit"></i> Edit
+                        </a>
+                        <form method="post" action="{% url 'delete_product' product.id %}" class="delete-form" onsubmit="return confirm('Are you sure you want to delete this listing?');">
+                            {% csrf_token %}
+                            <button type="submit" class="btn-delete">
+                                <i class="fas fa-trash"></i> Delete
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="no-products">
+        <div class="no-products-content">
+            <div class="icon-container">
+                <i class="fas fa-box-open"></i>
+            </div>
+            <h2>You haven't listed any items yet</h2>
+            <p>Start selling your unused items and turn them into cash!</p>
+            <a href="{% url 'post_product' %}" class="btn-primary">List Your First Item</a>
+        </div>
+    </div>
+    {% endif %}
+    
+    <div class="selling-tips">
+        <h3>Seller Tips</h3>
+        <div class="tips-grid">
+            <div class="tip-card">
+                <div class="tip-icon"><i class="fas fa-camera"></i></div>
+                <h4>Quality Photos</h4>
+                <p>Items with multiple clear photos sell up to 3x faster.</p>
+            </div>
+            <div class="tip-card">
+                <div class="tip-icon"><i class="fas fa-tag"></i></div>
+                <h4>Competitive Pricing</h4>
+                <p>Research similar items to set the right price.</p>
+            </div>
+            <div class="tip-card">
+                <div class="tip-icon"><i class="fas fa-shipping-fast"></i></div>
+                <h4>Fast Shipping</h4>
+                <p>Quick shipping leads to better reviews and more sales.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Search functionality
+    const searchInput = document.getElementById('productSearch');
+    const productCards = document.querySelectorAll('.product-card');
+    
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            
+            productCards.forEach(card => {
+                const title = card.getAttribute('data-title');
+                if (title.includes(searchTerm)) {
+                    card.style.display = 'flex';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+    }
+    
+    // Sort functionality
+    const sortSelect = document.getElementById('sortProducts');
+    const productGrid = document.querySelector('.product-grid');
+    
+    if (sortSelect && productGrid) {
+        sortSelect.addEventListener('change', function() {
+            const sortValue = this.value;
+            const cardsArray = Array.from(productCards);
+            
+            cardsArray.sort((a, b) => {
+                if (sortValue === 'newest') {
+                    return b.getAttribute('data-date') - a.getAttribute('data-date');
+                } else if (sortValue === 'oldest') {
+                    return a.getAttribute('data-date') - b.getAttribute('data-date');
+                } else if (sortValue === 'price-high') {
+                    return b.getAttribute('data-price') - a.getAttribute('data-price');
+                } else if (sortValue === 'price-low') {
+                    return a.getAttribute('data-price') - b.getAttribute('data-price');
+                } else if (sortValue === 'title') {
+                    return a.getAttribute('data-title').localeCompare(b.getAttribute('data-title'));
+                }
+                return 0;
+            });
+            
+            cardsArray.forEach(card => {
+                productGrid.appendChild(card);
+            });
+        });
+    }
+});
+</script>
+{% endblock %}

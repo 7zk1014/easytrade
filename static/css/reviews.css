@@ -1,0 +1,107 @@
+/* Review System Styles */
+.product-rating-summary {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.rating-stars {
+    color: #ffc107;
+    margin-right: 10px;
+}
+
+.rating-value {
+    font-weight: bold;
+    margin-right: 15px;
+}
+
+.review-card {
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 15px;
+    background-color: #fff;
+}
+
+.review-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.reviewer-name {
+    font-weight: bold;
+}
+
+.verified-badge {
+    color: #28a745;
+    font-size: 0.9em;
+    margin-left: 10px;
+}
+
+.review-date {
+    color: #6c757d;
+    font-size: 0.9em;
+}
+
+.review-rating {
+    margin-bottom: 10px;
+    color: #ffc107;
+}
+
+.review-content {
+    color: #333;
+    line-height: 1.5;
+}
+
+.no-reviews {
+    text-align: center;
+    padding: 20px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+}
+
+.view-all-reviews {
+    text-align: center;
+    margin-top: 15px;
+}
+
+/* Review Form Styles */
+.star-rating {
+    display: flex;
+    margin-bottom: 15px;
+}
+
+.star-rating select {
+    padding: 8px 12px;
+    border-radius: 4px;
+    border: 1px solid #ced4da;
+}
+
+/* Product Reviews Page */
+.product-reviews-header {
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.review-count {
+    color: #6c757d;
+}
+
+/* 添加未验证评价的样式 */
+.unverified-review {
+    border-left: 3px solid #ffc107;
+}
+
+.verified-review {
+    border-left: 3px solid #28a745;
+}
+
+.unverified-badge {
+    color: #ffc107;
+    font-size: 0.9em;
+    margin-left: 10px;
+}
+
+/* 其他现有样式保持不变 */
