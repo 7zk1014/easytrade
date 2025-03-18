@@ -47,9 +47,10 @@ INSTALLED_APPS = [
     'apps.cart',
     'apps.reviews',
     'apps.offers',
-    'apps.disputes',
     'apps.payments',
+    'apps.core',
     'channels',
+    'apps.reports.apps.ReportsConfig',
 ]
 
 # 添加 ASGI 应用
@@ -100,6 +101,7 @@ AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
+# Language settings
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
 USE_I18N = True

@@ -24,6 +24,8 @@ def user_register(request):
         if form.is_valid():
             user = form.save(commit=False)
             user.set_password(form.cleaned_data['password'])  # 确保密码加密
+            # 默认设置角色为空或者两者都可以
+            user.role = 'both'  # 或者您可以设置为空字符串或其他默认值
             user.save()
             login(request, user)  # 自动登录
             return redirect('profile')  # 跳转到 profile 页面
@@ -96,4 +98,17 @@ def seller_profile(request, seller_id):
     }
     
     return render(request, 'seller_profile.html', context)
+
+
+# 检查用户是否有权限执行卖家操作
+def check_seller_permission(view_func):
+    @wraps(view_func)
+    def _wrapped_view(request, *args, **kwargs):
+        # 修改这里，允许 'both' 角色也能执行卖家操作
+        if request.user.role in ['seller', 'both', 'admin']:
+            return view_func(request, *args, **kwargs)
+        else:
+            messages.error(request, "您没有权限执行此操作。")
+            return redirect('home')
+    return _wrapped_view
 

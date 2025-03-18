@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container my-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h2 class="h4 mb-0">Report #{{ report.id }}</h2>
+        </div>
+        <div class="card-body">
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <h5 class="text-muted">Report Information</h5>
+                    <p><strong>Created:</strong> {{ report.created_at|date:"Y-m-d H:i" }}</p>
+                    <p><strong>Status:</strong> 
+                        <span class="badge bg-{{ report.status|lower }}">
+                            {{ report.get_status_display }}
+                        </span>
+                    </p>
+                    <p><strong>Type:</strong> {{ report.get_report_type_display }}</p>
+                </div>
+                <div class="col-md-6">
+                    <h5 class="text-muted">Issue Details</h5>
+                    <p><strong>Description:</strong></p>
+                    <p class="text-muted">{{ report.description }}</p>
+                </div>
+            </div>
+
+            {% if report.order %}
+            <div class="mt-4">
+                <h5 class="text-muted">Related Order</h5>
+                <p><strong>Order ID:</strong> <a href="{% url 'order_detail' report.order.id %}">#{{ report.order.id }}</a></p>
+            </div>
+            {% endif %}
+
+            {% if report.product %}
+            <div class="mt-4">
+                <h5 class="text-muted">Related Product</h5>
+                <p><strong>Product:</strong> <a href="{% url 'product_detail' report.product.id %}">{{ report.product.name }}</a></p>
+            </div>
+            {% endif %}
+
+            <div class="mt-4">
+                <a href="{% url 'reports:report_list' %}" class="btn btn-secondary">Back to Reports</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -23,6 +23,11 @@ class Product(models.Model):
     image = models.ImageField(upload_to='products/', blank=True, null=True)
     seller = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='products')
     created_at = models.DateTimeField(auto_now_add=True)
-
     def __str__(self):
         return self.title
+    STATUS_CHOICES = (
+        ('active', 'Active'),
+        ('sold', 'Sold'),
+        ('hidden', 'Hidden')
+    )
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='active')

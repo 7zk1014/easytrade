@@ -5,3 +5,4 @@ django-environ
 djangorestframework-simplejwt
 django-filter
 mysqlclient
+channels

@@ -14,6 +14,10 @@ from django.contrib import messages
 from django.urls import reverse
 from django.http import HttpResponseRedirect
 
+from apps.reviews.models import Review, SellerReview
+from apps.orders.models import Order
+from django.db.models import Avg
+from apps.reviews.forms import ReviewForm
 
 # REST API viewset for Product CRUD operations
 class ProductViewSet(viewsets.ModelViewSet):
@@ -39,6 +43,7 @@ class PostProductView(LoginRequiredMixin, View):
         if form.is_valid():
             product = form.save(commit=False)
             product.seller = request.user
+            product.status = 'active'  # 设置默认状态
             product.save()
             messages.success(request, 'Product published successfully!')
             return redirect('home')
@@ -158,3 +163,82 @@ def delete_product(request, pk):
     
     # If not a POST request, redirect to product detail page
     return redirect('product_detail', pk=pk)
+
+@login_required
+def add_review(request, product_id):
+    product = get_object_or_404(Product, id=product_id)
+    
+    # 修改这里：将 user 改为 buyer
+    user_orders = Order.objects.filter(
+        buyer=request.user,  # 这里改为 buyer 而不是 user
+        status__in=['completed', 'delivered'],
+        items__product=product
+    ).distinct()
+    
+    if not user_orders.exists():
+        messages.error(request, "You can only review products you have purchased.")
+        return redirect('product_detail', product_id=product_id)
+    
+    # Check if user has already reviewed this product
+    existing_review = Review.objects.filter(product=product, reviewer=request.user).first()
+    
+    if request.method == 'POST':
+        form = ReviewForm(request.POST, instance=existing_review)
+        if form.is_valid():
+            review = form.save(commit=False)
+            review.product = product
+            review.reviewer = request.user
+            review.save()
+            messages.success(request, "Your review has been submitted.")
+            return redirect('product_detail', product_id=product_id)
+    else:
+        form = ReviewForm(instance=existing_review)
+    
+    return render(request, 'add_review.html', {
+        'form': form,
+        'product': product,
+        'is_edit': existing_review is not None
+    })
+
+def product_detail(request, product_id):
+    product = get_object_or_404(Product, id=product_id)
+    reviews = product.reviews.all()
+    
+    # Check if current user can review this product
+    can_review = False
+    has_reviewed = False
+    
+    if request.user.is_authenticated:
+        # Check if user has purchased this product
+        user_orders = Order.objects.filter(
+            buyer=request.user, 
+            status__in=['completed', 'delivered'],
+            items__product=product
+        ).distinct()
+        
+        can_review = user_orders.exists()
+        
+        # Check if user has already reviewed this product
+        has_reviewed = Review.objects.filter(product=product, reviewer=request.user).exists()
+    
+    # Get related products
+    related_products = Product.objects.filter(
+        category=product.category
+    ).exclude(id=product.id)[:4]
+    
+    # Get seller rating
+    seller_reviews = SellerReview.objects.filter(seller=product.seller)
+    seller_review_count = seller_reviews.count()
+    avg_seller_rating = seller_reviews.aggregate(Avg('rating'))['rating__avg'] or 0
+    
+    context = {
+        'product': product,
+        'reviews': reviews,
+        'related_products': related_products,
+        'seller_review_count': seller_review_count,
+        'avg_seller_rating': avg_seller_rating,
+        'can_review': can_review,
+        'has_reviewed': has_reviewed,
+    }
+    
+    return render(request, 'product_detail.html', context)

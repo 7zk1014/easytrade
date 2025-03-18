@@ -15,6 +15,7 @@ from .serializers import OrderSerializer, OrderItemSerializer
 from apps.cart.models import CartItem
 from apps.products.models import Product
 from apps.payments.models import Payment
+from apps.reviews.models import Review
 
 # Viewset for Order, showing orders for the logged-in buyer
 class OrderViewSet(viewsets.ModelViewSet):
@@ -137,18 +138,30 @@ def checkout(request):
 # Order history
 @login_required
 def order_history(request):
+
     orders = Order.objects.filter(buyer=request.user).order_by('-created_at')
     return render(request, 'order_history.html', {'orders': orders})
 
 # Order details
 @login_required
 def order_detail(request, order_id):
+    # 修改这里：将 user 改为 buyer
     order = get_object_or_404(Order, id=order_id, buyer=request.user)
-    order_items = order.items.all().select_related('product')
+    
+    order_items = order.items.all()
+    
+    # Create a dictionary to track which products the user has reviewed
+    user_reviews = {}
+    for item in order_items:
+        user_reviews[item.product.id] = Review.objects.filter(
+            product=item.product, 
+            reviewer=request.user
+        ).exists()
     
     return render(request, 'order_detail.html', {
         'order': order,
-        'order_items': order_items
+        'order_items': order_items,
+        'user_reviews': user_reviews
     })
 
 # Cancel order
@@ -189,3 +202,35 @@ def cancel_order(request, order_id):
             messages.success(request, 'Order has been cancelled')
     
     return redirect('order_detail', order_id=order.id)
+
+@login_required
+def process_payment(request, order_id):
+    order = get_object_or_404(Order, id=order_id, buyer=request.user)
+    
+    if request.method == 'POST':
+        # ... 支付处理逻辑 ...
+        
+        if payment_successful:
+            # 更新订单状态
+            order.status = 'paid'
+            order.save()
+            
+            # 将订单中的所有商品标记为已售出
+            for item in order.items.all():
+                product = item.product
+                product.status = 'sold'
+                product.save()
+            
+            messages.success(request, "Payment successful! Your order has been confirmed.")
+            return redirect('order_detail', order_id=order.id)
+
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render
+from .models import Order
+
+@login_required
+def order_list(request):
+    orders = Order.objects.filter(buyer=request.user).order_by('-created_at')
+    return render(request, 'order_list.html', {
+        'orders': orders
+    })

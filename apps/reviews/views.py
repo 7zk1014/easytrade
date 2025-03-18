@@ -25,20 +25,22 @@ from django.db.models import Avg
 from .models import Review
 from .forms import ReviewForm
 from apps.products.models import Product
-from apps.orders.models import OrderItem
+from apps.orders.models import Order
 
 @login_required
 def add_review(request, product_id):
     product = get_object_or_404(Product, id=product_id)
     
-    # Check if the user has purchased this product, but only for marking the review
-    has_purchased = OrderItem.objects.filter(
-        order__buyer=request.user,
-        product=product,
-        order__status__in=['delivered', 'completed']
+    has_purchased = Order.objects.filter(
+        buyer=request.user,
+        status__in=['completed', 'delivered'],
+        items__product=product
     ).exists()
     
-    # Check if the user has already reviewed this product
+    if not has_purchased:
+        messages.error(request, "You need to purchase and receive this product before you can review it.")
+        return redirect('product_detail', pk=product_id)
+    
     existing_review = Review.objects.filter(product=product, reviewer=request.user).first()
     
     if request.method == 'POST':
@@ -47,19 +49,17 @@ def add_review(request, product_id):
             review = form.save(commit=False)
             review.product = product
             review.reviewer = request.user
-            review.verified_purchase = has_purchased  # 标记是否为已验证购买
+            review.verified_purchase = True
             review.save()
-            messages.success(request, 'Your review has been submitted successfully!')
-            # 修改这一行，将product_id改为pk
-            return redirect('product_detail', pk=product.id)
+            messages.success(request, "Review submitted successfully!")
+            return redirect('product_detail', pk=product_id)
     else:
         form = ReviewForm(instance=existing_review)
     
     return render(request, 'add_review.html', {
         'form': form,
         'product': product,
-        'existing_review': existing_review,
-        'has_purchased': has_purchased
+        'is_edit': existing_review is not None
     })
 
 def product_reviews(request, product_id):
@@ -101,7 +101,6 @@ def add_seller_review(request, seller_id, order_id=None):
                 review.order = order
             review.save()
             messages.success(request, 'Your review of the seller has been submitted successfully!')
-            # 修改这一行，使用正确的URL名称和参数
             return redirect('seller_reviews', seller_id=seller.id)
     else:
         form = SellerReviewForm(instance=existing_review)

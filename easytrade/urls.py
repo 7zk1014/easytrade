@@ -29,7 +29,6 @@ urlpatterns = [
     path('api/cart/', include('apps.cart.urls')),
     path('reviews/', include('apps.reviews.urls')),
     path('api/offers/', include('apps.offers.urls')),
-    path('api/disputes/', include('apps.disputes.urls')),
     path('api/payments/', include('apps.payments.urls')),
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
@@ -71,7 +70,7 @@ urlpatterns = [
     path('messages/', view_messages, name='view_messages'),
     path('messages/<int:user_id>/', view_conversation, name='view_conversation'),
     
-    path('advanced-search/', TemplateView.as_view(template_name="advanced_search.html"), name='advanced_search'),
+    # 移除 path('advanced-search/', TemplateView.as_view(template_name="advanced_search.html"), name='advanced_search'),
     path('favorites/', TemplateView.as_view(template_name="favorites.html"), name='favorites'),
     path('notifications/', TemplateView.as_view(template_name="notifications.html"), name='notifications'),
     path('report-support/', TemplateView.as_view(template_name="report_support.html"), name='report_support'),
@@ -79,7 +78,8 @@ urlpatterns = [
     path('post-product/', include('apps.products.urls_post')),
     path('about/', TemplateView.as_view(template_name="about.html"), name='about'),
     path('payment/', TemplateView.as_view(template_name="payment.html"), name='payment'),
-    path('account-settings/', account_settings, name='account_settings')
+    path('account-settings/', account_settings, name='account_settings'),  
+    path('reports/', include('apps.reports.urls')),
 ]
 
 # 添加静态文件和媒体文件的URL配置

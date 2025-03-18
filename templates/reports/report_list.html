@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container my-4">
+    <h2 class="mb-4">My Reports</h2>
+    <div class="card shadow-sm">
+        <div class="card-body">
+            {% if reports %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Report ID</th>
+                            <th>Type</th>
+                            <th>Created</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for report in reports %}
+                        <tr>
+                            <td>#{{ report.id }}</td>
+                            <td>{{ report.report_type }}</td>
+                            <td>{{ report.created_at|date:"Y-m-d H:i" }}</td>
+                            <td>
+                                <span class="badge {% if report.status == 'pending' %}bg-warning text-dark{% elif report.status == 'in_progress' %}bg-primary text-white{% else %}bg-success text-white{% endif %}">
+                                    {{ report.get_status_display }}
+                                </span>
+                            </td>
+                            <td>
+                                <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#reportModal{{ report.id }}">
+                                    View Details
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p class="text-muted">You haven't submitted any reports yet.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

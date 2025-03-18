@@ -54,10 +54,14 @@
                                 <li><a class="dropdown-item" href="{% url 'my_products' %}">My Products</a></li>
                                 <li><a class="dropdown-item" href="{% url 'view_offers' %}">My Offers</a></li>
                                 <li><a class="dropdown-item" href="{% url 'order_history' %}">My Orders</a></li>
-                                <li> <a class="dropdown-item" href="{% url 'dispute_list' %}">My Disputes</a></a></li>
+                                <li><a class="dropdown-item" href="{% url 'reports:report_list' %}">My Reports</a></li>
                                 <li><a class="dropdown-item" href="{% url 'payment_history' %}">Payment History</a></li>
                                 <li><a class="dropdown-item" href="{% url 'recharge_balance' %}">Recharge Balance</a></li>
                                 <li><a class="dropdown-item" href="{% url 'account_settings' %}">Account Settings</a></li>
+                                {% if user.is_staff %}
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="{% url 'reports:admin_report_list' %}">Reports Management</a></li>
+                                {% endif %}
                                 <li><hr class="dropdown-divider"></li>
                                 <li><a class="dropdown-item" href="{% url 'logout' %}">Logout</a></li>
                             </ul>
@@ -101,9 +105,6 @@
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'post_product' %}">Sell</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'advanced_search' %}">Advanced Search</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'about' %}">About Us</a>

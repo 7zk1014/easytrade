@@ -1,0 +1,358 @@
+
+.timeline-inverted .timeline-panel {
+    float: right;
+}
+
+.timeline-inverted .timeline-panel:before {
+    right: auto;
+    left: -15px;
+    border-left: 0;
+    border-right: 15px solid #fff;
+}
+
+/* Team Card Styles */
+.team-card {
+    background-color: #fff;
+    border-radius: 10px;
+    padding: 2rem;
+    text-align: center;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    transition: transform 0.3s ease;
+    height: 100%;
+}
+
+.team-card:hover {
+    transform: translateY(-10px);
+}
+
+/* 团队成员照片调整 - 缩小尺寸 */
+.team-img {
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin: 0 auto 1.5rem;
+    border: 5px solid rgba(0,123,255,0.1);
+}
+
+/* 确保图片正确显示 - 缩小尺寸 */
+.mission-banner img {
+    width: 90%;
+    height: auto;
+    object-fit: contain;
+    max-height: 350px;
+    display: block;
+    margin: 0 auto 2rem;
+    border-radius: 12px;
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+}
+
+/* Hero Section 图片调整 */
+.hero-section img {
+    max-width: 90%;
+    max-height: 300px;
+    object-fit: contain;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+    .mission-banner img {
+        max-height: 250px;
+        margin-bottom: 1.5rem;
+        width: 95%;
+    }
+    
+    .team-img {
+        width: 120px;
+        height: 120px;
+    }
+    
+    .hero-section img {
+        max-height: 250px;
+    }
+}
+.position {
+    color: #007bff;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.social-links {
+    margin-top: 1.5rem;
+}
+
+.social-links a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: rgba(0,123,255,0.1);
+    color: #007bff;
+    margin: 0 5px;
+    transition: all 0.3s ease;
+}
+
+.social-links a:hover {
+    background-color: #007bff;
+    color: #fff;
+}
+
+/* Contact Us Section */
+.contact-section {
+    background-color: #fff;
+}
+
+.contact-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.contact-item i {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: rgba(0,123,255,0.1);
+    color: #007bff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1rem;
+}
+
+.contact-form-wrapper {
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    padding: 2rem;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+}
+
+.contact-form .form-control {
+    border: none;
+    border-radius: 5px;
+    padding: 0.75rem 1rem;
+    background-color: #fff;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.contact-form .btn-primary {
+    padding: 0.75rem 2rem;
+    border-radius: 5px;
+    background-color: #007bff;
+    border: none;
+    transition: all 0.3s ease;
+}
+
+.contact-form .btn-primary:hover {
+    background-color: #0069d9;
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0,123,255,0.3);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 767.98px) {
+    .timeline:before {
+        left: 40px;
+    }
+    
+    .timeline-badge {
+        left: 40px;
+        margin-left: 0;
+    }
+    
+    .timeline-panel {
+        width: calc(100% - 90px);
+        float: right;
+    }
+    
+    .timeline-panel:before {
+        right: auto;
+        left: -15px;
+        border-left: 0;
+        border-right: 15px solid #fff;
+    }
+    
+    .timeline-inverted .timeline-panel {
+        float: right;
+    }
+    
+    .timeline-inverted .timeline-panel:before {
+        left: -15px;
+        border-left: 0;
+        border-right: 15px solid #fff;
+    }
+}
+
+/* Animation Effects */
+.fade-in {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.fade-in.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* 确保 hero section 始终可见 */
+.hero-section {
+    opacity: 1 !important;
+    visibility: visible !important;
+    display: block !important;
+    transition: none !important; /* 禁用任何过渡效果 */
+    animation: none !important; /* 禁用任何动画 */
+}
+
+/* 如果有任何自动隐藏的动画，覆盖它们 */
+@keyframes fadeOut {
+    to { opacity: 1; }
+}
+
+.fade-out, .auto-hide {
+    animation: none !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+/* 全局字体大小调整 */
+body {
+    font-size: 18px;
+    line-height: 1.6;
+}
+
+/* 标题字体大小调整 */
+.section-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 2rem;
+    color: #333;
+}
+
+h3 {
+    font-size: 1.8rem;
+    margin-bottom: 1.2rem;
+}
+
+.lead {
+    font-size: 1.3rem;
+    line-height: 1.7;
+}
+
+.section-description {
+    font-size: 1.2rem;
+    line-height: 1.8;
+    margin-bottom: 2rem;
+}
+
+/* 页面结构调整 - 增加间距 */
+section {
+    padding: 5rem 0;
+}
+
+.container {
+    max-width: 1200px;
+    padding: 0 2rem;
+}
+
+/* Hero Section 调整 */
+.hero-section {
+    background-color: #f8f9fa;
+    padding: 6rem 0;
+    margin-bottom: 2rem;
+}
+
+.hero-section h1 {
+    font-size: 3.5rem;
+    margin-bottom: 1.5rem;
+}
+
+/* 调整卡片样式 */
+.value-card, .team-card {
+    padding: 2.5rem;
+    margin-bottom: 2rem;
+    border-radius: 15px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+}
+
+.value-card p, .team-card p, .timeline-body p {
+    font-size: 1.1rem;
+    line-height: 1.7;
+}
+
+/* 图标调整 */
+.icon-wrapper {
+    width: 80px;
+    height: 80px;
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+}
+
+/* 删除这部分重复的团队成员照片设置 */
+/* 团队成员照片调整 */
+/* .team-img {
+    width: 180px;
+    height: 180px;
+    margin-bottom: 2rem;
+} */
+
+/* 联系表单调整 */
+.contact-form .form-control {
+    padding: 1rem 1.2rem;
+    font-size: 1.1rem;
+    margin-bottom: 1.5rem;
+}
+
+.contact-form .btn-primary {
+    padding: 1rem 2.5rem;
+    font-size: 1.1rem;
+}
+
+/* 隐藏 mission 图片 */
+.mission-banner {
+    display: none;
+}
+
+/* 调整 Mission 部分的上边距，使其与上方内容有适当间距 */
+.mission-section {
+    padding-top: 3rem;
+}
+
+/* 响应式调整 */
+@media (max-width: 992px) {
+    body {
+        font-size: 16px;
+    }
+    
+    .section-title {
+        font-size: 2.2rem;
+    }
+    
+    .hero-section h1 {
+        font-size: 2.8rem;
+    }
+}
+
+@media (max-width: 768px) {
+    section {
+        padding: 4rem 0;
+    }
+    
+    .hero-section {
+        padding: 4rem 0;
+    }
+    
+    .mission-banner img {
+        max-height: 350px;
+        margin-bottom: 2rem;
+    }
+    
+    .team-img {
+        width: 150px;
+        height: 150px;
+    }
+}

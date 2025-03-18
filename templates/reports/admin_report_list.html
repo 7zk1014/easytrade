@@ -1,0 +1,176 @@
+{% extends 'base.html' %}
+{% load report_filters %}
+
+{% block content %}
+<div class="container my-4">
+    <h2 class="mb-4">Administrator Dashboard</h2>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Total Reports</h5>
+                    <h2 class="card-text">{{ reports.count }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-dark">
+                <div class="card-body">
+                    <h5 class="card-title">Pending</h5>
+                    <h2 class="card-text">{{ reports|filter_status:'pending'|length }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <h5 class="card-title">In Progress</h5>
+                    <h2 class="card-text">{{ reports|filter_status:'in_progress'|length }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Resolved</h5>
+                    <h2 class="card-text">{{ reports|filter_status:'resolved'|length }}</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter Section -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label">Status</label>
+                    <select name="status" class="form-select">
+                        <option value="">All Status</option>
+                        <option value="pending">Pending</option>
+                        <option value="in_progress">In Progress</option>
+                        <option value="resolved">Resolved</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Type</label>
+                    <select name="type" class="form-select">
+                        <option value="">All Types</option>
+                        <option value="order">Order</option>
+                        <option value="product">Product</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Date Range</label>
+                    <div class="input-group">
+                        <input type="date" name="start_date" class="form-control" lang="en-US">
+                        <span class="input-group-text">to</span>
+                        <input type="date" name="end_date" class="form-control" lang="en-US">
+                    </div>
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">Apply Filters</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Reports Table -->
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Report ID</th>
+                            <th>User</th>
+                            <th>Type</th>
+                            <th>Created At</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for report in reports %}
+                        <tr>
+                            <td>#{{ report.id }}</td>
+                            <td>{{ report.reporter.username }}</td>
+                            <td>{{ report.report_type }}</td>
+                            <td>{{ report.created_at|date:"Y-m-d H:i" }}</td>
+                            <td>
+                                <span class="badge {% if report.status == 'pending' %}bg-warning text-dark{% elif report.status == 'in_progress' %}bg-primary text-white{% else %}bg-success text-white{% endif %}">
+                                    {{ report.get_status_display }}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="btn-group">
+                                    <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#reportModal{{ report.id }}">
+                                        View Details
+                                    </button>
+                                    {% if report.status == 'pending' %}
+                                    <form method="post" action="{% url 'reports:update_report_status' report.id %}" class="d-inline">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="status" value="in_progress">
+                                        <button type="submit" class="btn btn-sm btn-warning">Mark In Progress</button>
+                                    </form>
+                                    {% endif %}
+                                    {% if report.status != 'resolved' %}
+                                    <form method="post" action="{% url 'reports:update_report_status' report.id %}" class="d-inline">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="status" value="resolved">
+                                        <button type="submit" class="btn btn-sm btn-success">Mark Resolved</button>
+                                    </form>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+
+                        <!-- Report Details Modal -->
+                        <div class="modal fade" id="reportModal{{ report.id }}" tabindex="-1" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Report Details #{{ report.id }}</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <p><strong>Reporter:</strong> {{ report.reporter.username }}</p>
+                                        <p><strong>Type:</strong> {{ report.report_type }}</p>
+                                        <p><strong>Created At:</strong> {{ report.created_at|date:"Y-m-d H:i" }}</p>
+                                        <p><strong>Status:</strong> {{ report.get_status_display }}</p>
+                                        <p><strong>Description:</strong></p>
+                                        <p class="text-muted">{{ report.description }}</p>
+                                        {% if report.order %}
+                                        <p><strong>Related Order:</strong> <a href="{% url 'order_detail' report.order.id %}">#{{ report.order.id }}</a></p>
+                                        {% endif %}
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                        {% if report.status == 'pending' %}
+                                        <form method="post" action="{% url 'reports:update_report_status' report.id %}" class="d-inline">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="status" value="in_progress">
+                                            <button type="submit" class="btn btn-warning">Mark In Progress</button>
+                                        </form>
+                                        {% endif %}
+                                        {% if report.status != 'resolved' %}
+                                        <form method="post" action="{% url 'reports:update_report_status' report.id %}" class="d-inline">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="status" value="resolved">
+                                            <button type="submit" class="btn btn-success">Mark Resolved</button>
+                                        </form>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
