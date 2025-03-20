@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+
+{% block title %}Notification Center{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="fas fa-bell"></i> Notification Center</h4>
+                </div>
+                <div class="card-body">
+                    {% if notifications %}
+                        <div class="list-group">
+                            {% for notification in notifications %}
+                                <div class="list-group-item list-group-item-action {% if not notification.is_read %}list-group-item-primary{% endif %}">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h5 class="mb-1">
+                                            {% if notification.notification_type == 'product_sold' %}
+                                                <i class="fas fa-shopping-bag text-success"></i>
+                                            {% elif notification.notification_type == 'new_order' %}
+                                                <i class="fas fa-file-invoice text-primary"></i>
+                                            {% elif notification.notification_type == 'order_status' %}
+                                                <i class="fas fa-truck text-info"></i>
+                                            {% elif notification.notification_type == 'message' %}
+                                                <i class="fas fa-envelope text-warning"></i>
+                                            {% elif notification.notification_type == 'review' %}
+                                                <i class="fas fa-star text-danger"></i>
+                                            {% endif %}
+                                            {{ notification.get_notification_type_display }}
+                                        </h5>
+                                        <small>{{ notification.created_at|date:"Y-m-d H:i" }}</small>
+                                    </div>
+                                    <p class="mb-1">{{ notification.content }}</p>
+                                    <div class="d-flex justify-content-between align-items-center mt-2">
+                                        <div>
+                                            {% if notification.related_product %}
+                                                <a href="{% url 'product_detail' notification.related_product.id %}" class="btn btn-sm btn-outline-primary">
+                                                    View Product
+                                                </a>
+                                            {% endif %}
+                                            {% if notification.related_order %}
+                                                <a href="{% url 'order_detail' notification.related_order.id %}" class="btn btn-sm btn-outline-info">
+                                                    View Order
+                                                </a>
+                                            {% endif %}
+                                        </div>
+                                        {% if not notification.is_read %}
+                                            <a href="{% url 'mark_notification_read' notification.id %}" class="btn btn-sm btn-light">
+                                                Mark as Read
+                                            </a>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-bell-slash fa-4x text-muted mb-3"></i>
+                            <h5>No Notifications</h5>
+                            <p class="text-muted">You will receive notifications here when there are new orders, messages, or other updates.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,77 @@
+/* Refund application form styles */
+.refund-form .form-control {
+    border-radius: 0.25rem;
+    border: 1px solid #ced4da;
+}
+
+.refund-form .form-control:focus {
+    border-color: #80bdff;
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+}
+
+/* Refund status label styles */
+.refund-status {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.refund-status-pending {
+    background-color: #ffc107;
+    color: #212529;
+}
+
+.refund-status-approved {
+    background-color: #28a745;
+    color: #fff;
+}
+
+.refund-status-rejected {
+    background-color: #dc3545;
+    color: #fff;
+}
+
+.refund-status-completed {
+    background-color: #17a2b8;
+    color: #fff;
+}
+
+/* Refund details card styles */
+.refund-card {
+    border: none;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    transition: transform 0.3s ease;
+}
+
+.refund-card:hover {
+    transform: translateY(-5px);
+}
+
+.refund-card .card-header {
+    border-bottom: none;
+}
+
+.refund-card .card-body {
+    padding: 1.5rem;
+}
+
+/* Refund action button styles */
+.refund-actions .btn {
+    border-radius: 0.25rem;
+    padding: 0.5rem 1rem;
+    font-weight: 500;
+}
+
+.refund-actions .btn-approve {
+    background-color: #28a745;
+    border-color: #28a745;
+    color: #fff;
+}
+
+.refund-actions .btn-reject {
+    background-color: #dc3545;
+    border-color: #dc3545;
+    color: #fff;
+}

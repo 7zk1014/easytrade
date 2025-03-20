@@ -1,0 +1,57 @@
+/* ... existing code ... */
+.sold-product {
+    opacity: 0.7;
+}
+
+.sold-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+}
+
+.sold-overlay span {
+    background-color: #dc3545;
+    color: white;
+    padding: 5px 15px;
+    font-weight: bold;
+    font-size: 1.2rem;
+    transform: rotate(-15deg);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+/* 新增售出标记样式 */
+.sale-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: #dc3545;
+    color: white;
+    padding: 5px 15px;
+    border-radius: 20px;
+    font-weight: bold;
+    z-index: 100;
+}
+
+/* 增强售出商品的视觉效果 */
+.product-card.sold {
+    position: relative;
+    opacity: 0.6;
+    filter: grayscale(0.8);
+}
+
+.product-card.sold::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.7);
+}

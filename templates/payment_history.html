@@ -1,0 +1,252 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="payment-history-container">
+    <h2>Payment History</h2>
+    
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+        <div class="message {% if message.tags %}{{ message.tags }}{% endif %}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    
+    <div class="account-summary">
+        <div class="current-balance">
+            <h3>Current Balance: £{{ user.balance }}</h3>
+            <a href="{% url 'recharge_balance' %}" class="btn btn-primary">Add Funds</a>
+        </div>
+        <div class="payment-filters">
+            <select id="payment-status-filter" class="form-select">
+                <option value="all">All Transactions</option>
+                <option value="completed">Completed</option>
+                <option value="pending">Pending</option>
+                <option value="failed">Failed</option>
+                <option value="refunded">Refunded</option>
+            </select>
+            <div class="search-box">
+                <input type="text" id="payment-search" placeholder="Search transactions..." class="form-control">
+                <button class="btn btn-outline-secondary"><i class="fas fa-search"></i></button>
+            </div>
+        </div>
+    </div>
+    
+    {% if payments %}
+    <div class="payments-list">
+        <div class="payments-cards">
+            {% for payment in payments %}
+            <div class="payment-card" data-status="{{ payment.status }}">
+                <div class="payment-header">
+                    <div class="payment-id">Transaction #{{ payment.id }}</div>
+                    <div class="payment-date">{{ payment.created_at|date:"M d, Y H:i" }}</div>
+                </div>
+                <div class="payment-details">
+                    <div class="payment-info">
+                        <div class="payment-order">
+                            <span class="label">Order:</span>
+                            <a href="{% url 'order_detail' payment.order.id %}" class="order-link">
+                                #{{ payment.order.id }}
+                            </a>
+                        </div>
+                        <div class="payment-method">
+                            <span class="label">Payment Method:</span>
+                            <span class="value">{{ payment.get_payment_method_display }}</span>
+                        </div>
+                    </div>
+                    <div class="payment-status-amount">
+                        <div class="payment-status status-{{ payment.status }}">
+                            {{ payment.get_status_display }}
+                        </div>
+                        <div class="payment-amount">£{{ payment.amount }}</div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% else %}
+    <div class="no-payments">
+        <div class="empty-state">
+            <i class="fas fa-credit-card fa-4x"></i>
+            <p>You don't have any payment records yet</p>
+            <a href="{% url 'home' %}" class="btn btn-primary">Start Shopping</a>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+    .payment-history-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    .account-summary {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+        padding: 15px;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+    }
+    
+    .current-balance {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+    
+    .current-balance h3 {
+        margin: 0;
+        font-size: 1.2rem;
+    }
+    
+    .payment-filters {
+        display: flex;
+        gap: 15px;
+    }
+    
+    .search-box {
+        display: flex;
+        width: 250px;
+    }
+    
+    .payments-cards {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .payment-card {
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 15px;
+        transition: transform 0.2s;
+    }
+    
+    .payment-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .payment-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 10px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .payment-id {
+        font-weight: bold;
+    }
+    
+    .payment-details {
+        display: flex;
+        justify-content: space-between;
+    }
+    
+    .payment-info {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    }
+    
+    .label {
+        color: #666;
+        margin-right: 5px;
+    }
+    
+    .payment-status-amount {
+        text-align: right;
+    }
+    
+    .payment-amount {
+        font-size: 1.2rem;
+        font-weight: bold;
+        margin-top: 5px;
+    }
+    
+    .payment-status {
+        display: inline-block;
+        padding: 3px 10px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+    }
+    
+    .status-completed {
+        background-color: #d4edda;
+        color: #155724;
+    }
+    
+    .status-pending {
+        background-color: #fff3cd;
+        color: #856404;
+    }
+    
+    .status-failed {
+        background-color: #f8d7da;
+        color: #721c24;
+    }
+    
+    .status-refunded {
+        background-color: #d1ecf1;
+        color: #0c5460;
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 50px 0;
+        color: #6c757d;
+    }
+    
+    .empty-state i {
+        margin-bottom: 20px;
+        opacity: 0.5;
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Filter payments by status
+        const statusFilter = document.getElementById('payment-status-filter');
+        const paymentCards = document.querySelectorAll('.payment-card');
+        
+        if (statusFilter) {
+            statusFilter.addEventListener('change', function() {
+                const selectedStatus = this.value;
+                
+                paymentCards.forEach(card => {
+                    if (selectedStatus === 'all' || card.dataset.status === selectedStatus) {
+                        card.style.display = 'block';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+            });
+        }
+        
+        // Search functionality
+        const searchInput = document.getElementById('payment-search');
+        
+        if (searchInput) {
+            searchInput.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                
+                paymentCards.forEach(card => {
+                    const cardText = card.textContent.toLowerCase();
+                    if (cardText.includes(searchTerm)) {
+                        card.style.display = 'block';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+            });
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block title %}My Offers{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h1 class="mb-4">My Offers</h1>
+    
+    <!-- 删除这里的硬编码提示 -->
+    <!-- <div class="alert alert-success alert-dismissible fade show" role="alert">
+        Offer accepted successfully
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div> -->
+    
+    <ul class="nav nav-tabs mb-4" id="offerTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="received-tab" data-bs-toggle="tab" data-bs-target="#received" type="button" role="tab" aria-controls="received" aria-selected="true">Received Offers</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="sent-tab" data-bs-toggle="tab" data-bs-target="#sent" type="button" role="tab" aria-controls="sent" aria-selected="false">Sent Offers</button>
+        </li>
+    </ul>
+    
+    <div class="tab-content" id="offerTabsContent">
+        <div class="tab-pane fade show active" id="received" role="tabpanel" aria-labelledby="received-tab">
+            <h2 class="h4 mb-3">Received Offers</h2>
+            
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Buyer</th>
+                        <th>Offer Price</th>
+                        <th>Message</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for offer in received_offers %}
+                    <tr>
+                        <!-- 表格内容 -->
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="tab-pane fade" id="sent" role="tabpanel" aria-labelledby="sent-tab">
+            <h2 class="h4 mb-3">Sent Offers</h2>
+            
+            <table class="table table-hover">
+                <!-- 表格内容 -->
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

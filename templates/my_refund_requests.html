@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+{% load custom_filters %}
+
+{% block title %}My Refund Requests{% endblock %}
+
+{% block extra_css %}
+<style>
+    .refund-status {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        z-index: 10;
+    }
+    .refund-date {
+        display: block;
+        margin-bottom: 10px;
+        font-size: 0.85rem;
+        color: #6c757d;
+    }
+    .refund-item {
+        position: relative;
+        padding-top: 15px;
+        margin-bottom: 10px;
+        border: 1px solid #dee2e6;
+        border-radius: 0.25rem;
+        padding: 15px;
+    }
+    .refund-details {
+        margin-top: 10px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h2 class="mb-4">My Refund Requests</h2>
+    
+    <!-- 买家的退款申请 -->
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">My Refund Requests as Buyer</h5>
+        </div>
+        <div class="card-body">
+            {% if buyer_requests %}
+                <div class="list-group">
+                    {% for request in buyer_requests %}
+                        <div class="refund-item">
+                            <span class="refund-status badge bg-{{ request.status|status_badge }}">{{ request.status|title }}</span>
+                            
+                            <h5>Refund Request #{{ request.id }}</h5>
+                            <span class="refund-date">{{ request.created_at|date:"Y-m-d H:i" }}</span>
+                            
+                            <div class="refund-details">
+                                <p><strong>Order:</strong> #{{ request.order.id }}</p>
+                                <p><strong>Amount:</strong> {{ request.amount|currency }}</p>
+                                
+                                <div class="mt-3">
+                                    <a href="{% url 'view_refund_request' request.id %}" class="btn btn-sm btn-primary">View Details</a>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="text-muted">You haven't made any refund requests yet.</p>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- 卖家的退款申请 -->
+    <div class="card">
+        <div class="card-header bg-info text-white">
+            <h5 class="mb-0">Refund Requests as Seller</h5>
+        </div>
+        <div class="card-body">
+            {% if seller_requests %}
+                <div class="list-group">
+                    {% for request in seller_requests %}
+                        <div class="refund-item">
+                            <span class="refund-status badge bg-{{ request.status|status_badge }}">{{ request.status|title }}</span>
+                            
+                            <h5>Refund Request #{{ request.id }}</h5>
+                            <span class="refund-date">{{ request.created_at|date:"Y-m-d H:i" }}</span>
+                            
+                            <div class="refund-details">
+                                <p><strong>Order:</strong> #{{ request.order.id }}</p>
+                                <p><strong>Buyer:</strong> {{ request.user.username }}</p>
+                                <p><strong>Amount:</strong> {{ request.amount|currency }}</p>
+                                
+                                <div class="mt-3">
+                                    <a href="{% url 'view_refund_request' request.id %}" class="btn btn-sm btn-primary">View Details</a>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="text-muted">You don't have any refund requests from buyers.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

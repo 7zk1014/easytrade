@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block title %}Order Process Help{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h1 class="mb-4">Order Process Guide</h1>
+    
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">For Buyers</h5>
+        </div>
+        <div class="card-body">
+            <ol class="list-group list-group-numbered">
+                <li class="list-group-item">Add products to your cart or use "Buy Now"</li>
+                <li class="list-group-item">Complete checkout and payment</li>
+                <li class="list-group-item">Wait for the seller to ship your order</li>
+                <li class="list-group-item">Receive your items and check them</li>
+                <li class="list-group-item">Confirm receipt in "My Orders" to complete the transaction</li>
+                <li class="list-group-item">Leave a review for the product and seller (optional)</li>
+            </ol>
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">For Sellers</h5>
+        </div>
+        <div class="card-body">
+            <ol class="list-group list-group-numbered">
+                <li class="list-group-item">Post your products for sale</li>
+                <li class="list-group-item">Receive notifications when your products are sold</li>
+                <li class="list-group-item">Check "My Sales" for new orders</li>
+                <li class="list-group-item">Ship the order and provide a tracking number</li>
+                <li class="list-group-item">Wait for the buyer to confirm receipt</li>
+                <li class="list-group-item">Transaction is completed and funds are released</li>
+            </ol>
+        </div>
+    </div>
+</div>
+{% endblock %}

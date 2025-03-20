@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% load order_tags %}
+
+{% block title %}My Sales{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h1 class="mb-4">My Sales</h1>
+    
+    {% if seller_orders %}
+        <div class="list-group">
+            {% for order_data in seller_orders %}
+                {% with order=order_data.order %}
+                <div class="list-group-item mb-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-1">Order #{{ order.id }}</h5>
+                        <span class="badge bg-{{ order.status|status_badge }}">{{ order.get_status_display }}</span>
+                    </div>
+                    <p class="mb-1">Buyer: {{ order.buyer.username }}</p>
+                    <p class="mb-1">Date: {{ order.created_at|date:"F j, Y, g:i a" }}</p>
+                    <p class="mb-1">Total: £{{ order_data.total }}</p>
+                    
+                    <div class="mt-3">
+                        <h6>Items:</h6>
+                        <ul class="list-group">
+                            {% for item in order_data.items %}
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <strong>{{ item.product.title }}</strong>
+                                        <small class="d-block text-muted">Quantity: {{ item.quantity }}</small>
+                                    </div>
+                                    <span>£{{ item.subtotal }}</span>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    
+                    {% if order.status == 'paid' %}
+                        <div class="mt-3">
+                            <a href="{% url 'ship_order' order.id %}" class="btn btn-primary">
+                                <i class="fas fa-shipping-fast"></i> Ship Order
+                            </a>
+                        </div>
+                    {% elif order.status == 'shipped' %}
+                        <div class="mt-3">
+                            <p class="mb-1">Tracking Number: {{ order.tracking_number }}</p>
+                            <p class="text-muted">Waiting for buyer to confirm receipt</p>
+                        </div>
+                    {% endif %}
+                </div>
+                {% endwith %}
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info">
+            <p>You don't have any sales yet.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

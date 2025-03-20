@@ -1,0 +1,270 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load custom_filters %}  <!-- Add this line to load your custom filters -->
+
+{% block title %}Seller Profile - {{ seller.username }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <!-- Seller Information -->
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body text-center">
+                    <div class="seller-avatar mb-3">
+                        {% if seller.avatar %}
+                            <img src="{{ seller.avatar.url }}" alt="{{ seller.username }}" class="rounded-circle img-fluid" style="width: 120px; height: 120px; object-fit: cover;">
+                        {% else %}
+                            <div class="avatar-placeholder rounded-circle d-flex align-items-center justify-content-center mx-auto" style="width: 120px; height: 120px; background-color: #e9ecef;">
+                                <i class="fas fa-user fa-3x text-secondary"></i>
+                            </div>
+                        {% endif %}
+                    </div>
+                    <h2 class="h4 mb-2">{{ seller.username }}</h2>
+                    <p class="text-muted">Member since {{ seller.date_joined|date:"F Y" }}</p>
+                    <p class="mb-2">Total products: {{ total_products }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Seller Ratings -->
+        <div class="col-md-8 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h3 class="h5 mb-0">Seller Ratings</h3>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="rating-stars me-2">
+                            {% for i in "12345" %}
+                                {% if i|add:"0" <= avg_rating %}
+                                    <i class="fas fa-star text-warning"></i>
+                                {% elif i|add:"0" <= avg_rating|add:"0.5" %}
+                                    <i class="fas fa-star-half-alt text-warning"></i>
+                                {% else %}
+                                    <i class="far fa-star text-warning"></i>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                        <span class="h5 mb-0">{{ avg_rating|floatformat:1 }} out of 5</span>
+                        <span class="text-muted ms-2">({{ reviews|length }} reviews)</span>
+                    </div>
+
+                    {% for review in reviews %}
+                    <div class="review-item mb-3 pb-3 border-bottom">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <div class="d-flex align-items-center">
+                                <div class="rating-stars me-2">
+                                    {% for i in "12345" %}
+                                        {% if i|add:"0" <= review.rating %}
+                                            <i class="fas fa-star text-warning"></i>
+                                        {% else %}
+                                            <i class="far fa-star text-warning"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                                <span class="fw-bold">{{ review.reviewer.username }}</span>
+                            </div>
+                            <small class="text-muted">{{ review.created_at|date:"M d, Y" }}</small>
+                        </div>
+                        <p class="mb-0">{{ review.comment }}</p>
+                    </div>
+                    {% empty %}
+                    <div class="text-center py-3">
+                        <i class="fas fa-comment-slash fa-2x text-muted mb-2"></i>
+                        <p class="mb-0">No reviews yet for this seller.</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Products by this Seller -->
+    <div class="row">
+        <div class="col-12">
+            <h3 class="mb-4">Products by this Seller</h3>
+            <p class="text-muted">Total products: {{ total_products }} (Showing all products)</p>
+            
+            <!-- Product Tab Navigation -->
+            <ul class="nav nav-tabs mb-4" id="productTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="all-tab" data-bs-toggle="tab" data-bs-target="#all-products" type="button" role="tab" aria-controls="all-products" aria-selected="true">
+                        All Products ({{ products|length }})
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="active-tab" data-bs-toggle="tab" data-bs-target="#active-products" type="button" role="tab" aria-controls="active-products" aria-selected="false">
+                        Available Products ({{ active_products|length }})
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="sold-tab" data-bs-toggle="tab" data-bs-target="#sold-products" type="button" role="tab" aria-controls="sold-products" aria-selected="false">
+                        Sold Products ({{ sold_products|length }})
+                    </button>
+                </li>
+            </ul>
+            
+            <!-- Product Tab Content -->
+            <div class="tab-content" id="productTabsContent">
+                <!-- All Products Tab -->
+                <div class="tab-pane fade show active" id="all-products" role="tabpanel" aria-labelledby="all-tab">
+                    {% if products %}
+                    <div class="row">
+                        {% for product in products %}
+                        <div class="col-md-4 mb-4">
+                            <div class="card product-card h-100 shadow-sm">
+                                <!-- Product Image -->
+                                <div class="card-img-top-wrapper" style="height: 200px; overflow: hidden; position: relative;">
+                                    {% if product.image %}
+                                        <img src="{{ product.image.url }}" alt="{{ product.title }}" class="card-img-top" style="width: 100%; height: 100%; object-fit: contain;">
+                                    {% else %}
+                                        <div class="d-flex align-items-center justify-content-center h-100 bg-light">
+                                            <i class="fas fa-image fa-3x text-muted"></i>
+                                        </div>
+                                    {% endif %}
+                                    
+                                    <!-- Product Status Badge -->
+                                    {% if product.status != 'active' %}
+                                    <div style="position: absolute; top: 10px; right: 10px;">
+                                        {% if product.status == 'sold' %}
+                                            <span class="badge bg-warning">Sold</span>
+                                        {% elif product.status == 'shipped' %}
+                                            <span class="badge bg-info">Shipped</span>
+                                        {% elif product.status == 'completed' %}
+                                            <span class="badge bg-secondary">Completed</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">{{ product.get_status_display }}</span>
+                                        {% endif %}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                <!-- Product Information -->
+                                <div class="card-body d-flex flex-column">
+                                    <h5 class="card-title">{{ product.title }}</h5>
+                                    <p class="card-text text-primary fw-bold mb-2">${{ product.price }}</p>
+                                    <p class="card-text small text-muted mb-3">{{ product.category }}</p>
+                                    <a href="{% url 'product_detail' product.id %}" class="btn btn-outline-primary mt-auto">View Details</a>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        This seller has no products.
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Available Products Tab -->
+                <div class="tab-pane fade" id="active-products" role="tabpanel" aria-labelledby="active-tab">
+                    {% if active_products %}
+                    <div class="row">
+                        {% for product in active_products %}
+                        <div class="col-md-4 mb-4">
+                            <div class="card product-card h-100 shadow-sm">
+                                <!-- Product Image -->
+                                <div class="card-img-top-wrapper" style="height: 200px; overflow: hidden;">
+                                    {% if product.image %}
+                                        <img src="{{ product.image.url }}" alt="{{ product.title }}" class="card-img-top" style="width: 100%; height: 100%; object-fit: contain;">
+                                    {% else %}
+                                        <div class="d-flex align-items-center justify-content-center h-100 bg-light">
+                                            <i class="fas fa-image fa-3x text-muted"></i>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <!-- Product Information -->
+                                <div class="card-body d-flex flex-column">
+                                    <h5 class="card-title">{{ product.title }}</h5>
+                                    <p class="card-text text-primary fw-bold mb-2">${{ product.price }}</p>
+                                    <p class="card-text small text-muted mb-3">{{ product.category }}</p>
+                                    <a href="{% url 'product_detail' product.id %}" class="btn btn-outline-primary mt-auto">View Details</a>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        This seller has no active products at the moment.
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Sold Products Tab -->
+                <div class="tab-pane fade" id="sold-products" role="tabpanel" aria-labelledby="sold-tab">
+                    {% if sold_products %}
+                    <div class="row">
+                        {% for product in sold_products %}
+                        <div class="col-md-4 mb-4">
+                            <div class="card product-card h-100 shadow-sm">
+                                <!-- Product Image -->
+                                <div class="card-img-top-wrapper" style="height: 200px; overflow: hidden; position: relative;">
+                                    {% if product.image %}
+                                        <img src="{{ product.image.url }}" alt="{{ product.title }}" class="card-img-top" style="width: 100%; height: 100%; object-fit: contain;">
+                                    {% else %}
+                                        <div class="d-flex align-items-center justify-content-center h-100 bg-light">
+                                            <i class="fas fa-image fa-3x text-muted"></i>
+                                        </div>
+                                    {% endif %}
+                                    
+                                    <!-- Product Status Badge -->
+                                    <div style="position: absolute; top: 10px; right: 10px;">
+                                        {% if product.status == 'sold' %}
+                                            <span class="badge bg-warning">Sold</span>
+                                        {% elif product.status == 'shipped' %}
+                                            <span class="badge bg-info">Shipped</span>
+                                        {% elif product.status == 'completed' %}
+                                            <span class="badge bg-secondary">Completed</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">{{ product.get_status_display }}</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <!-- Product Information -->
+                                <div class="card-body d-flex flex-column">
+                                    <h5 class="card-title">{{ product.title }}</h5>
+                                    <p class="card-text text-primary fw-bold mb-2">${{ product.price }}</p>
+                                    <p class="card-text small text-muted mb-3">{{ product.category }}</p>
+                                    <a href="{% url 'product_detail' product.id %}" class="btn btn-outline-primary mt-auto">View Details</a>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        This seller has no sold products.
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Ensure images load correctly
+    document.addEventListener('DOMContentLoaded', function() {
+        const productImages = document.querySelectorAll('.card-img-top');
+        
+        productImages.forEach(function(img) {
+            img.addEventListener('error', function() {
+                // Replace with placeholder when image fails to load
+                const wrapper = this.parentElement;
+                wrapper.innerHTML = `
+                    <div class="d-flex align-items-center justify-content-center h-100 bg-light">
+                        <i class="fas fa-image fa-3x text-muted"></i>
+                    </div>
+                `;
+            });
+        });
+    });
+</script>
+{% endblock %}

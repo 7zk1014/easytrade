@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>You need to log in to access Account Settings.</h2>
+    <p>Please log in to continue.</p>
+    <a href="{% url 'login' %}?next={{ next }}" class="btn btn-primary">Go to Login</a>
+</div>
+{% endblock %}

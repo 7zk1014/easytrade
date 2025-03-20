@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% load custom_filters %}
+
+{% block title %}Refund Request Details #{{ refund_request.id }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">Refund Request Details #{{ refund_request.id }}</h4>
+        </div>
+        <div class="card-body">
+            <!-- Order Information -->
+            <h5>Order Information</h5>
+            <div class="mb-3">
+                <p><strong>Order ID:</strong> {{ order.id }}</p>
+                <p><strong>Order Date:</strong> {{ order.created_at|date:"Y-m-d H:i" }}</p>
+                <p><strong>Order Amount:</strong> {{ order.total_price|currency }}</p>
+                <p><strong>Order Status:</strong> {{ order.status|title }}</p>
+            </div>
+            
+            <!-- Refund Information -->
+            <h5>Refund Information</h5>
+            <div class="mb-3">
+                <p><strong>Requester:</strong> {{ refund_request.user.username }}</p>
+                <p><strong>Request Date:</strong> {{ refund_request.created_at|date:"Y-m-d H:i" }}</p>
+                <p><strong>Refund Amount:</strong> {{ refund_request.amount|currency }}</p>
+                <p><strong>Refund Status:</strong> {{ refund_request.status|title }}</p>
+                <p><strong>Refund Reason:</strong> {{ refund_request.reason }}</p>
+                
+                {% if refund_request.admin_notes %}
+                <p><strong>Admin Notes:</strong> {{ refund_request.admin_notes }}</p>
+                {% endif %}
+            </div>
+            
+            <!-- Process Refund Request -->
+            {% if is_seller and refund_request.status == 'pending' %}
+            <h5>Process Refund Request</h5>
+            <div class="mb-3">
+                <a href="{% url 'process_refund' refund_request.id %}" class="btn btn-primary">Process Refund</a>
+            </div>
+            {% endif %}
+            
+            <a href="{% url 'my_refund_requests' %}" class="btn btn-secondary">Back to Refund Request List</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

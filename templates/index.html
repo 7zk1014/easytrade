@@ -1,0 +1,167 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="hero-section">
+    <div class="hero-content">
+        <h2>Welcome to EasyTrade</h2>
+        <p>Your trusted marketplace for buying and selling second-hand items</p>
+    </div>
+</div>
+
+<div class="featured-categories">
+    <h3>Popular Categories</h3>
+    <div class="category-grid">
+        <a href="{% url 'home' %}?category=Electronics" class="category-card">
+            <div class="category-icon"><i class="fas fa-laptop"></i></div>
+            <h4>Electronics</h4>
+        </a>
+        <a href="{% url 'home' %}?category=Clothing" class="category-card">
+            <div class="category-icon"><i class="fas fa-tshirt"></i></div>
+            <h4>Clothing</h4>
+        </a>
+        <a href="{% url 'home' %}?category=Home" class="category-card">
+            <div class="category-icon"><i class="fas fa-home"></i></div>
+            <h4>Home & Garden</h4>
+        </a>
+        <a href="{% url 'home' %}?category=Books" class="category-card">
+            <div class="category-icon"><i class="fas fa-book"></i></div>
+            <h4>Books</h4>
+        </a>
+        <a href="{% url 'home' %}?category=Sports" class="category-card">
+            <div class="category-icon"><i class="fas fa-running"></i></div>
+            <h4>Sports</h4>
+        </a>
+        <a href="{% url 'home' %}?category=Collectibles" class="category-card">
+            <div class="category-icon"><i class="fas fa-gem"></i></div>
+            <h4>Collectibles</h4>
+        </a>
+    </div>
+</div>
+
+<div class="products-section">
+    <div class="section-header">
+        <h3>Latest Products</h3>
+        {% if selected_category %}
+        <p class="filter-info">Category: {{ selected_category }}</p>
+        {% endif %}
+        {% if search_query %}
+        <p class="filter-info">Search results for: "{{ search_query }}"</p>
+        {% endif %}
+        
+        <!-- 添加排序筛选器 -->
+        <div class="filter-options">
+            <div class="sort-container">
+                <label for="sort-select">Sort by:</label>
+                <select id="sort-select" class="sort-select" onchange="applySort(this.value)">
+                    <option value="">Default Sort</option>
+                    <option value="title_asc" {% if sort_by == 'title_asc' %}selected{% endif %}>Name (A-Z)</option>
+                    <option value="title_desc" {% if sort_by == 'title_desc' %}selected{% endif %}>Name (Z-A)</option>
+                    <option value="price_asc" {% if sort_by == 'price_asc' %}selected{% endif %}>Price (Low to High)</option>
+                    <option value="price_desc" {% if sort_by == 'price_desc' %}selected{% endif %}>Price (High to Low)</option>
+                    <option value="newest" {% if sort_by == 'newest' %}selected{% endif %}>Newest</option>
+                    <option value="oldest" {% if sort_by == 'oldest' %}selected{% endif %}>Earliest</option>
+                </select>
+            </div>
+        </div>
+    </div>
+    
+    {% if products %}
+    <div class="product-grid">
+        {% for product in products %}
+        <div class="product-card">
+            <a href="{% url 'product_detail' product.id %}" class="product-link">
+                <div class="product-image">
+                    {% if product.image %}
+                    <img src="{{ product.image.url }}" alt="{{ product.title }}">
+                    {% else %}
+                    <div class="no-image">No Image</div>
+                    {% endif %}
+                </div>
+                <div class="product-info">
+                    <h4 class="product-title">{{ product.title }}</h4>
+                    <p class="product-price">£{{ product.price }}</p>
+                    <p class="product-category">{{ product.category }}</p>
+                    <p class="product-seller">Seller: {{ product.seller.username }}</p>
+                    <p class="product-date">Listed: {{ product.created_at|date:"M d, Y" }}</p>
+                </div>
+            </a>
+            <div class="product-actions">
+                {% if user.is_authenticated and user != product.seller %}
+                <form method="post" action="{% url 'add_to_cart' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="product_id" value="{{ product.id }}">
+                    <input type="hidden" name="quantity" value="1">
+                    <input type="hidden" name="next" value="home">
+                    <button type="submit" class="btn-add-cart"><i class="fas fa-cart-plus"></i> Add to Cart</button>
+                </form>
+                <a href="{% url 'product_detail' product.id %}" class="btn-view-details">View Details</a>
+                {% elif user == product.seller %}
+                <a href="{% url 'edit_product' product.id %}" class="btn-edit">Edit</a>
+                {% else %}
+                <a href="{% url 'login' %}?next={% url 'product_detail' product.id %}" class="btn-login-to-buy">Login to Buy</a>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    
+    {% if is_paginated %}
+    <div class="pagination">
+        <span class="step-links">
+            {% if page_obj.has_previous %}
+                <a href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}" class="pagination-link">&laquo; First</a>
+                <a href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if sort_by %}&sort_by={{ sort_by }}{% endif %}" class="pagination-link">Previous</a>
+            {% endif %}
+
+            <span class="current-page">
+                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+            </span>
+
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if sort_by %}&sort_by={{ sort_by }}{% endif %}" class="pagination-link">Next</a>
+                <a href="?page={{ page_obj.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if sort_by %}&sort_by={{ sort_by }}{% endif %}" class="pagination-link">Last &raquo;</a>
+            {% endif %}
+        </span>
+    </div>
+    {% endif %}
+    
+    {% else %}
+    <div class="no-products">
+        <p>No products found</p>
+        {% if user.is_authenticated %}
+        <a href="{% url 'post_product' %}" class="btn-post-product">Sell an Item</a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+
+<div class="selling-cta">
+    <div class="cta-content">
+        <h3>Have items to sell?</h3>
+        <p>Turn your unused items into cash. It's quick and easy to list on EasyTrade.</p>
+        <a href="{% url 'post_product' %}" class="btn-sell-now">Sell Now</a>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function applySort(sortValue) {
+    // 获取当前URL
+    let currentUrl = new URL(window.location.href);
+    let searchParams = currentUrl.searchParams;
+    
+    // 设置排序参数
+    if (sortValue) {
+        searchParams.set('sort_by', sortValue);
+    } else {
+        searchParams.delete('sort_by');
+    }
+    
+    // 保持在第一页
+    searchParams.set('page', '1');
+    
+    // 重定向到新URL
+    window.location.href = currentUrl.toString();
+}
+</script>
+{% endblock %}

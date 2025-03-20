@@ -1,0 +1,178 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/cart.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="cart-container">
+    <div class="page-header">
+        <h1>Shopping Cart</h1>
+    </div>
+    
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+        <div class="message {% if message.tags %}{{ message.tags }}{% endif %}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    
+    {% if cart_items %}
+    <div class="cart-content">
+        <div class="cart-items">
+            <div class="cart-header">
+                <h2>Items in Your Cart ({{ cart_items|length }})</h2>
+            </div>
+            
+            {% for item in cart_items %}
+            <div class="cart-item">
+                <div class="item-image">
+                    {% if item.product.image %}
+                    <a href="{% url 'product_detail' item.product.id %}">
+                        <img src="{{ item.product.image.url }}" alt="{{ item.product.title }}">
+                    </a>
+                    {% else %}
+                    <div class="no-image">
+                        <i class="fas fa-image"></i>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <div class="item-details">
+                    <h3 class="item-title">
+                        <a href="{% url 'product_detail' item.product.id %}">{{ item.product.title }}</a>
+                    </h3>
+                    <p class="item-category">Category: {{ item.product.category }}</p>
+                    <p class="item-seller">Seller: {{ item.product.seller.username }}</p>
+                    
+                    <div class="item-actions">
+                        <form method="post" action="{% url 'remove_from_cart' item.id %}" class="remove-form">
+                            {% csrf_token %}
+                            <button type="submit" class="btn-remove">
+                                <i class="fas fa-trash"></i> Remove
+                            </button>
+                        </form>
+                        <button type="button" class="btn-save-for-later">
+                            <i class="far fa-heart"></i> Save for later
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="item-quantity">
+                    <form method="post" action="{% url 'update_cart_item' item.id %}" class="quantity-form">
+                        {% csrf_token %}
+                        <label for="quantity-{{ item.id }}">Quantity:</label>
+                        <div class="quantity-controls">
+                            <button type="button" class="quantity-btn minus" onclick="decrementQuantity(this)">-</button>
+                            <input type="number" id="quantity-{{ item.id }}" name="quantity" value="{{ item.quantity }}" min="1" max="10" class="quantity-input" onchange="this.form.submit()">
+                            <button type="button" class="quantity-btn plus" onclick="incrementQuantity(this)">+</button>
+                        </div>
+                    </form>
+                </div>
+                
+                <div class="item-price">
+                    <p class="price-label">Price:</p>
+                    <p class="unit-price">£{{ item.product.price }}</p>
+                    <p class="subtotal">Subtotal: <span>£{{ item.total_price }}</span></p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div class="cart-sidebar">
+            <div class="order-summary">
+                <h3>Order Summary</h3>
+                
+                <div class="summary-row">
+                    <span class="summary-label">Items ({{ cart_items|length }}):</span>
+                    <span class="summary-value">£{{ total_price }}</span>
+                </div>
+                
+                <div class="summary-row">
+                    <span class="summary-label">Shipping:</span>
+                    <span class="summary-value">Free</span>
+                </div>
+                
+                <div class="summary-divider"></div>
+                
+                <div class="summary-row total">
+                    <span class="summary-label">Order Total:</span>
+                    <span class="summary-value">£{{ total_price }}</span>
+                </div>
+                
+                <div class="checkout-actions">
+                    <a href="{% url 'checkout' %}" class="btn-checkout">
+                        <i class="fas fa-lock"></i> Proceed to Checkout
+                    </a>
+                </div>
+                
+                <div class="payment-methods">
+                    <p>We accept:</p>
+                    <div class="payment-icons">
+                        <i class="fab fa-cc-visa"></i>
+                        <i class="fab fa-cc-mastercard"></i>
+                        <i class="fab fa-cc-paypal"></i>
+                        <i class="fab fa-cc-apple-pay"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="continue-shopping">
+                <a href="{% url 'home' %}" class="btn-continue">
+                    <i class="fas fa-arrow-left"></i> Continue Shopping
+                </a>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="empty-cart">
+        <div class="empty-cart-content">
+            <div class="empty-cart-icon">
+                <i class="fas fa-shopping-cart"></i>
+            </div>
+            <h2>Your cart is empty</h2>
+            <p>Looks like you haven't added anything to your cart yet.</p>
+            <a href="{% url 'home' %}" class="btn-shop-now">Start Shopping</a>
+        </div>
+        
+        <div class="recommended-products">
+            <h3>Recommended for You</h3>
+            <p>Check out these popular items</p>
+            <div class="recommended-grid">
+                <!-- This would be populated with actual recommended products in a real implementation -->
+                <div class="placeholder-message">
+                    <p>Personalized recommendations will appear here as you browse.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function incrementQuantity(button) {
+    var input = button.parentNode.querySelector('input');
+    var currentValue = parseInt(input.value);
+    if (currentValue < 10) {
+        input.value = currentValue + 1;
+        input.form.submit();
+    }
+}
+
+function decrementQuantity(button) {
+    var input = button.parentNode.querySelector('input');
+    var value = parseInt(input.value);
+    if (value > 1) {
+        input.value = value - 1;
+        input.form.submit();
+    }
+}
+</script>
+{% endblock %} 
