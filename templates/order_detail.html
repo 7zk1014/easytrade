@@ -3,6 +3,19 @@
 
 {% block title %}Order #{{ order.id }}{% endblock %}
 
+{% block extra_css %}
+<style>
+    .badge, .order-status-badge {
+        position: static !important;
+        display: inline-block !important;
+        float: none !important;
+        margin: 0 !important;
+        top: auto !important;
+        right: auto !important;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 
 <div class="card shadow-sm">
@@ -83,8 +96,9 @@
                 {% endif %}
                 
                 {% if order.status == 'paid' or order.status == 'shipped' %}
-                    <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#reportIssueModal">
-                        <i class="fas fa-flag"></i> Report Issue
+                    <!-- 简化按钮代码，只使用 data 属性 -->
+                    <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#reportModal">
+                        <i class="fas fa-exclamation-triangle"></i> Report Issue
                     </button>
                 {% endif %}
                 
@@ -146,19 +160,44 @@
         {% endif %}
     </div>
 </div>
-{% endblock %}
 
-
-<!-- Add at the bottom of the page -->
-{% block extra_js %}
-<style>
-    .badge, .order-status-badge {
-        position: static !important;
-        display: inline-block !important;
-        float: none !important;
-        margin: 0 !important;
-        top: auto !important;
-        right: auto !important;
-    }
-</style>
+<!-- 将模态框移到 endblock 之前 -->
+<!-- Report Issue Modal -->
+<div class="modal fade" id="reportModal" tabindex="-1" aria-labelledby="reportModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="reportModalLabel">Report Issue</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Change from reports:create_report to reports:submit_report -->
+                <form method="post" action="{% url 'reports:submit_report' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="order_id" value="{{ order.id }}">
+                    
+                    <div class="mb-3">
+                        <label for="report_type" class="form-label">Issue Type</label>
+                        <select class="form-control" id="report_type" name="report_type" required>
+                            <option value="order">Order Issue</option>
+                            <option value="product">Product Issue</option>
+                            <option value="shipping">Shipping Issue</option>
+                            <option value="other">Other Issue</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Description</label>
+                        <textarea class="form-control" id="description" name="description" rows="4" required></textarea>
+                    </div>
+                    
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Submit Report</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

@@ -64,7 +64,7 @@ def make_offer(request):
                 message=offer_message
             )
             
-            messages.success(request, f'You have successfully made an offer of ${offer_price} for {product.title}')
+            messages.success(request, f'You have successfully made an offer of £{offer_price} for {product.title}')
             return redirect('product_detail', pk=product_id)
             
         except Product.DoesNotExist:
@@ -102,7 +102,6 @@ def accept_offer(request, offer_id):
                 product.price = offer.offer_price
                 product.save()
                 
-                # 只添加一次成功消息
                 messages.success(request, "Offer accepted successfully")
         except Exception as e:
             messages.error(request, f'Error accepting offer: {str(e)}')

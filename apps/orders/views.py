@@ -16,9 +16,8 @@ from apps.cart.models import CartItem
 from apps.products.models import Product
 from apps.payments.models import Payment
 from apps.reviews.models import Review
-from notifications.signals import notify  # 添加这一行导入语句
+from notifications.signals import notify  
 
-# Viewset for Order, showing orders for the logged-in buyer
 class OrderViewSet(viewsets.ModelViewSet):
     serializer_class = OrderSerializer
     permission_classes = [IsAuthenticated]
@@ -116,7 +115,6 @@ def checkout(request):
                 order.payment_status = 'paid'
                 order.save()
                 
-                # 更新所有订单中商品的状态为sold
                 for item in order.items.all():
                     product = item.product
                     product.status = 'sold'
@@ -218,23 +216,20 @@ def cancel_order(request, order_id):
     
     return redirect('order_detail', order_id=order.id)
 
-# 在process_payment函数中添加更新商品状态的代码
 @login_required
 def process_payment(request, order_id):
     order = get_object_or_404(Order, id=order_id, buyer=request.user)
     
     if request.method == 'POST':
-        payment_method = 'balance'  # 新增支付方式定义
-        total_price = order.total_price  # 新增总价定义
+        payment_method = 'balance'  
+        total_price = order.total_price  
         
         if payment_method == 'balance':
             try:
                 with transaction.atomic():
-                    # 扣除余额
                     request.user.balance -= total_price
                     request.user.save()
                     
-                    # 创建支付记录
                     Payment.objects.create(
                         user=request.user,
                         amount=total_price,
@@ -243,16 +238,13 @@ def process_payment(request, order_id):
                         order=order
                     )
                     
-                    # 更新订单状态
                     order.mark_as_paid()
                     
-                    # 更新商品状态并发送通知
                     for item in order.items.all():
                         product = item.product
                         product.status = 'sold'
                         product.save(update_fields=['status'])
                         
-                        # 发送实时通知给卖家
                         notify.send(
                             request.user,
                             recipient=product.seller,
@@ -261,7 +253,6 @@ def process_payment(request, order_id):
                             description=f'Your product {product.title} has been purchased by {request.user.username}'
                         )
                     
-                    # 清理购物车（移动到事务中）
                     CartItem.objects.filter(user=request.user).delete()
                     
                     messages.success(request, 'Order placed successfully!')
@@ -272,18 +263,16 @@ def process_payment(request, order_id):
                 messages.error(request, 'Payment processing failed. Please try again.')
                 return redirect('checkout')
 
-        # 支付成功后，更新订单和商品状态
+
         order.status = 'paid'
         order.payment_status = 'paid'
         order.save()
         
-        # 更新所有订单中商品的状态为sold
         for item in order.items.all():
             product = item.product
             product.status = 'sold'
             product.save(update_fields=['status'])
         
-        # 发送通知给卖家
         notify.send(
             request.user,
             recipient=product.seller,
@@ -292,7 +281,6 @@ def process_payment(request, order_id):
             description=f'Your product {product.title} has been sold'
         )
     
-    # 通知卖家
     from notifications.signals import notify
     notify.send(
         request.user,
@@ -311,43 +299,34 @@ def process_payment(request, order_id):
     messages.success(request, 'Order placed successfully!')
     return redirect('order_detail', order_id=order.id)
 
-# 添加导入
 from apps.notifications.utils import notify_seller
 
 
 @login_required
 def complete_order(request, order_id):
-    """买家确认收货"""
     order = get_object_or_404(Order, id=order_id, buyer=request.user)
     
-    # 验证订单状态
     if order.status != 'shipped':
         messages.error(request, "This order is not ready to be completed")
         return redirect('order_detail', order_id=order_id)
     
     if request.method == 'POST':
-        # 更新订单状态
         order.status = 'completed'
         order.save()
         
-        # 更新所有商品状态为已完成，并将货款转给卖家
         for item in order.items.all():
             product = item.product
             seller = product.seller
             
-            # 确保商品状态为已完成
             if product.status != 'completed':
                 product.status = 'completed'
                 product.save(update_fields=['status'])
             
-            # 计算卖家应得金额（商品小计）
             seller_amount = item.subtotal
             
-            # 将金额转入卖家账户
             seller.balance += seller_amount
             seller.save()
             
-            # 创建支付记录 - 只使用现有字段
             from apps.payments.models import Payment
             Payment.objects.create(
                 user=seller,
@@ -355,12 +334,8 @@ def complete_order(request, order_id):
                 amount=seller_amount,
                 payment_method='balance',
                 status='completed',
-                # 移除不存在的字段
-                # payment_type='sale',
-                # description=f'Payment for order #{order.id}, item: {product.title}'
             )
             
-            # 通知卖家
             notify.send(
                 request.user,
                 recipient=seller,
@@ -369,7 +344,6 @@ def complete_order(request, order_id):
                 description=f'Order #{order.id} for your product {product.title} has been completed. ¥{seller_amount} has been added to your balance.'
             )
         
-        # 只添加一次成功消息
         messages.success(request, "Order has been marked as completed and payment has been transferred to the seller")
         return redirect('order_detail', order_id=order_id)
     
@@ -389,13 +363,10 @@ def order_list(request):
 
 @login_required
 def seller_orders(request):
-    """卖家查看自己的订单"""
-    # 获取当前用户作为卖家的所有订单项
     order_items = OrderItem.objects.filter(
         product__seller=request.user
     ).select_related('order', 'product').order_by('-order__created_at')
     
-    # 按订单分组
     orders_dict = {}
     for item in order_items:
         if item.order.id not in orders_dict:
@@ -415,17 +386,13 @@ def seller_orders(request):
 
 @login_required
 def ship_order(request, order_id):
-    """卖家发货"""
-    # 获取订单
     order = get_object_or_404(Order, id=order_id)
     
-    # 验证权限（确保当前用户是订单中至少一个商品的卖家）
     order_items = order.items.filter(product__seller=request.user)
     if not order_items.exists():
         messages.error(request, "You don't have permission to ship this order")
         return redirect('my_products')
     
-    # 验证订单状态
     if order.status != 'paid':
         messages.error(request, "This order is not ready for shipping")
         return redirect('my_products')
@@ -433,18 +400,15 @@ def ship_order(request, order_id):
     if request.method == 'POST':
         tracking_number = request.POST.get('tracking_number', '')
         
-        # 更新订单状态
         order.status = 'shipped'
         order.tracking_number = tracking_number
         order.save()
         
-        # 更新商品状态
         for item in order_items:
             product = item.product
             product.status = 'shipped'
             product.save(update_fields=['status'])
         
-        # 通知买家
         from notifications.signals import notify
         notify.send(
             request.user,
@@ -455,9 +419,8 @@ def ship_order(request, order_id):
         )
         
         messages.success(request, "Order has been marked as shipped")
-        # 修改这里：使用reverse获取URL，然后添加查询参数
         from django.urls import reverse
-        return redirect(reverse('my_products') + '?tab=sales')  # 重定向到销售选项卡
+        return redirect(reverse('my_products') + '?tab=sales')  
     
     return render(request, 'ship_order.html', {
         'order': order,
@@ -466,5 +429,4 @@ def ship_order(request, order_id):
 
 
 def order_help(request):
-    """订单流程帮助页面"""
     return render(request, 'order_help.html')

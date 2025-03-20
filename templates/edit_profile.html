@@ -13,7 +13,6 @@
                     <form method="post" enctype="multipart/form-data" action="{% url 'edit_profile' %}">
                         {% csrf_token %}
                         
-                        <!-- 显示可能的错误消息 -->
                         {% if messages %}
                             <div class="alert alert-danger">
                                 {% for message in messages %}
@@ -27,8 +26,10 @@
                             <div class="current-picture mb-2">
                                 {% if user.profile_picture %}
                                     <img src="{{ user.profile_picture.url }}" alt="Current Profile Picture" class="img-thumbnail" style="max-width: 150px;">
+                                {% elif user.profile.profile_picture %}
+                                    <img src="{{ user.profile.profile_picture.url }}" alt="Current Profile Picture" class="img-thumbnail" style="max-width: 150px;">
                                 {% else %}
-                                    <img src="{% static 'default-avatar.png' %}" alt="Default Avatar" class="img-thumbnail" style="max-width: 150px;">
+                                    <img src="{% static 'images/profile_pics/default-avatar.png' %}" alt="Default Avatar" class="img-thumbnail" style="max-width: 150px;">
                                 {% endif %}
                             </div>
                             <input type="file" class="form-control" id="profile_picture" name="profile_picture">

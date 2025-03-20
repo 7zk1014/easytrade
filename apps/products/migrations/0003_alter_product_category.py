@@ -13,6 +13,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='product',
             name='category',
-            field=models.CharField(choices=[('Electronics', '电子产品'), ('Clothing', '服装'), ('Home', '家居用品'), ('Books', '图书'), ('Sports', '体育用品'), ('Collectibles', '收藏品'), ('Toys', '玩具'), ('Beauty', '美妆护肤'), ('Automotive', '汽车用品'), ('Other', '其他')], default='Other', max_length=100),
+            field=models.CharField(choices=[('Electronics', 'Electronics'), ('Clothing', 'Clothing'), ('Home', 'Home & Garden'), ('Books', 'Books'), ('Sports', 'Sports'), ('Collectibles', 'Collectibles'), ('Toys', 'Toys'), ('Beauty', 'Beauty & Personal Care'), ('Automotive', 'Automotive'), ('Other', 'Other')], default='Other', max_length=100),
         ),
     ]

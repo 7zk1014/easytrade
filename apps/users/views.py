@@ -23,15 +23,16 @@ def user_register(request):
     if request.method == "POST":
         form = UserRegistrationForm(request.POST)
         if form.is_valid():
-            user = form.save(commit=False)
-            user.set_password(form.cleaned_data['password'])  # Ensure password encryption
-            # Set default role to both
-            user.role = 'both'  # Or you can set it to empty string or other default value
-            user.save()
-            login(request, user)  # Auto login
-            return redirect('profile')  # Redirect to profile page
+            user = form.save()
+            login(request, user)
+            return redirect('home')
+        else:
+            print("Registration form errors:", form.errors.as_json())
+            # 修改为实际存在的模板路径
+            return render(request, 'register.html', {'form': form})
     else:
         form = UserRegistrationForm()
+    # 修改为实际存在的模板路径
     return render(request, 'register.html', {'form': form})
 
 # Account settings (integrated password change & profile)

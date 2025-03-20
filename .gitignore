@@ -1,4 +1,4 @@
-# Python 相关
+# Python 
 *.pyc
 __pycache__/
 *.pyo
@@ -6,7 +6,7 @@ __pycache__/
 venv/
 env/
 
-# Django 相关
+# Django 
 db.sqlite3
 *.log
 *.pot
@@ -18,9 +18,11 @@ db.sqlite3
 *.log
 *.static_storage
 /media/
+!/static/images/
 
-# VS Code 相关
+
+# VS Code 
 .vscode/
 
-# 环境变量文件
+# Environment
 .env

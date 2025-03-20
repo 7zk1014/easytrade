@@ -14,7 +14,7 @@ def get_item(dictionary, key):
 
 @register.filter
 def currency(value):
-    """将数值格式化为货币格式"""
+    """Format value as currency"""
     try:
         # Convert to float if it's a string
         if isinstance(value, str):
@@ -43,7 +43,7 @@ def multiply(value, arg):
 
 @register.filter
 def can_review_product(user, product):
-    """检查用户是否可以评价产品"""
+    """Check if user can review a product"""
     if not user.is_authenticated:
         return False
     
@@ -56,10 +56,10 @@ def can_review_product(user, product):
 
 @register.filter
 def filter_by_status(products, status):
-    """过滤指定状态的产品"""
+    """Filter products by specified status"""
     return [p for p in products if p.status == status]
 
 @register.filter
 def exclude_by_status(products, status):
-    """排除指定状态的产品"""
+    """Exclude products with specified status"""
     return [p for p in products if p.status != status]

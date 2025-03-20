@@ -7,6 +7,7 @@ from .forms import RefundRequestForm, AdminRefundResponseForm
 from apps.orders.models import Order
 from notifications.signals import notify
 import time  
+from decimal import Decimal, InvalidOperation  # Add InvalidOperation import
 
 @login_required
 def request_refund(request, order_id):
@@ -205,7 +206,7 @@ def payment_history(request):
     """
     View payment history
     """
-    payments = Payment.objects.filter(user=request.user).order_by('-created_at')
+    payments = Payment.objects.filter(user=request.user).select_related('order').order_by('-created_at')
     return render(request, 'payment_history.html', {'payments': payments})
 
 @login_required
@@ -215,30 +216,34 @@ def recharge_balance(request):
     """
     if request.method == 'POST':
         amount = request.POST.get('amount')
+        payment_method = request.POST.get('payment_method', 'credit_card')
+        
+        # Validate amount
         try:
-            amount = float(amount)
+            amount = Decimal(amount)
             if amount <= 0:
-                messages.error(request, "Recharge amount must be greater than 0")
+                messages.error(request, "Amount must be greater than zero.")
                 return redirect('recharge_balance')
-                
-            # Process recharge logic
-            request.user.balance += amount
-            request.user.save()
-            
-            # Create payment record
-            Payment.objects.create(
-                user=request.user,
-                order=None,  # No associated order for recharge
-                amount=amount,
-                payment_method='alipay',  # Or other payment method
-                status='completed',
-                transaction_id=f'RECHARGE-{int(time.time())}'
-            )
-            
-            messages.success(request, f"Successfully recharged £{amount}")
-            return redirect('user_profile')
-        except ValueError:
-            messages.error(request, "Please enter a valid amount")
+        except (ValueError, InvalidOperation):
+            messages.error(request, "Please enter a valid amount.")
             return redirect('recharge_balance')
+        
+        # Create payment record
+        payment = Payment.objects.create(
+            user=request.user,
+            amount=amount,
+            payment_method=payment_method,
+            payment_type='recharge',
+            status='completed',  # Assume payment is successful for demo
+            description=f"Account balance recharge"
+        )
+        
+        # Update user balance
+        request.user.balance += amount
+        request.user.save()
+        
+        messages.success(request, f"Successfully recharged £{amount} to your account.")
+
+        return redirect('payment_history')
     
     return render(request, 'recharge_balance.html')

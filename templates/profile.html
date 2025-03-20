@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
+{% load custom_filters %}  <!-- Make sure to load custom filters -->
 
 {% block content %}
 <div class="container mt-4">
@@ -63,7 +64,10 @@
                         {% endif %}
                         <div class="card-body">
                             <h5 class="card-title">{{ product.title }}</h5>
-                            <p class="card-text">${{ product.price }}</p>
+                            <!-- Display product price using the currency filter -->
+                            <div class="product-card">
+                                <p class="card-text">{{ product.price|currency }}</p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -78,3 +82,8 @@
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/profile.css' %}">
 {% endblock %}
+
+<!-- Display user balance -->
+<div class="user-balance">
+    <p><strong>Balance:</strong> {{ user.balance|currency }}</p>
+</div>

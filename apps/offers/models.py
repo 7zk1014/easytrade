@@ -17,7 +17,7 @@ class Offer(models.Model):
     offer_status = models.CharField(max_length=10, choices=OFFER_STATUS_CHOICES, default='pending')
 
     def __str__(self):
-        return f"Offer of ${self.offer_price} on {self.product.title} by {self.buyer.username}"
+        return f"Offer of £{self.offer_price} on {self.product.title} by {self.buyer.username}"
     
     def get_offer_status_display(self):
         return dict(OFFER_STATUS_CHOICES).get(self.offer_status, self.offer_status)

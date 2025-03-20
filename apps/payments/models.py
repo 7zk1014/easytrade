@@ -16,7 +16,7 @@ class Payment(models.Model):
         ('alipay', 'Alipay'),
         ('wechat', 'WeChat Pay'),
         ('card', 'Bank Card'),
-        ('refund', 'Refund'),  # 添加退款支付方式
+        ('refund', 'Refund'), 
     )
     
     PAYMENT_TYPE_CHOICES = (
@@ -27,7 +27,7 @@ class Payment(models.Model):
     )
     
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='payments')
-    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='payments')
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='payments', null=True, blank=True)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     payment_method = models.CharField(max_length=20, choices=PAYMENT_METHOD_CHOICES, default='balance')
     payment_type = models.CharField(max_length=20, choices=PAYMENT_TYPE_CHOICES, default='purchase')
@@ -60,3 +60,4 @@ class RefundRequest(models.Model):
     
     def __str__(self):
         return f"Refund #{self.id} for Order #{self.order.id}"
+

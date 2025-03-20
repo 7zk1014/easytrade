@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load custom_filters %}  
 
 {% block title %}Ship Order{% endblock %}
 
@@ -23,7 +24,7 @@
                             <strong>{{ item.product.title }}</strong>
                             <small class="d-block text-muted">Quantity: {{ item.quantity }}</small>
                         </div>
-                        <span>${{ item.subtotal }}</span>
+                        <span>{{ item.subtotal|currency }}</span>  
                     </li>
                 {% endfor %}
             </ul>
@@ -44,7 +45,6 @@
                 </div>
                 
                 <div class="d-flex justify-content-between">
-                    <!-- 修改这里：将 seller_orders 改为 my_products 并添加 tab=sales 参数 -->
                     <a href="{% url 'my_products' %}?tab=sales" class="btn btn-secondary">
                         <i class="fas fa-arrow-left"></i> Back to Orders
                     </a>

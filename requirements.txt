@@ -4,5 +4,8 @@ django-cors-headers
 django-environ
 djangorestframework-simplejwt
 django-filter
+django-notifications-hq
 mysqlclient
 channels
+channels-redis
+Pillow

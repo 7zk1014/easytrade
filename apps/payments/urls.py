@@ -7,6 +7,7 @@ from .views import (
 urlpatterns = [
     path('create_intent/', create_payment_intent, name='create_payment_intent'),
     path('history/', payment_history, name='payment_history'),
+    # 修改这一行，将 views.recharge_balance 改为 recharge_balance
     path('recharge/', recharge_balance, name='recharge_balance'),
     path('refund/request/<int:order_id>/', request_refund, name='request_refund'),
     path('refund/view/<int:request_id>/', view_refund_request, name='view_refund_request'),

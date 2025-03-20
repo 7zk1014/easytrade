@@ -38,11 +38,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    # 第三方应用
     'rest_framework',
     'corsheaders',
-    'notifications',  # 第三方通知包
-    # 自定义应用
+    'notifications',  
     'apps.users',
     'apps.products',
     'apps.orders',
@@ -54,19 +52,16 @@ INSTALLED_APPS = [
     'apps.core',
     'channels',
     'apps.reports.apps.ReportsConfig',
-    'apps.notifications.apps.NotificationsConfig',  # 使用配置类而不是直接使用应用名称
+    'apps.notifications.apps.NotificationsConfig',  
 ]
 
-# 添加 ASGI 应用
+
 ASGI_APPLICATION = 'easytrade.asgi.application'
 
-# Channels 配置
+
 CHANNEL_LAYERS = {
     "default": {
-        "BACKEND": "channels_redis.core.RedisChannelLayer",
-        "CONFIG": {
-            "hosts": [("127.0.0.1", 6379)],
-        },
+        "BACKEND": "channels.layer.InMemoryChannelLayer",
     },
 }
 
@@ -115,9 +110,13 @@ USE_I18N = True
 USE_L10N = True
 USE_TZ = True
 
+
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [BASE_DIR / "static"]
-STATIC_ROOT = BASE_DIR / "staticfiles"
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),
+]
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')

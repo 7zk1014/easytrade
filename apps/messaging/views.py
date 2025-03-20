@@ -22,8 +22,11 @@ class MessageViewSet(viewsets.ModelViewSet):
 def send_message(request):
     if request.method == 'POST':
         recipient_id = request.POST.get('recipient_id')
-        product_id = request.POST.get('product_id', None)
+        product_id = request.POST.get('product_id', None)  # 保留这个参数，即使不再使用
         content = request.POST.get('content')
+        
+        # 调试信息
+        print(f"Received message request: recipient_id={recipient_id}, content={content}")
         
         if not recipient_id or not content:
             if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
@@ -38,14 +41,6 @@ def send_message(request):
                 receiver=recipient,
                 content=content
             )
-            
-            if product_id:
-                try:
-                    product = Product.objects.get(id=product_id)
-                    message.product = product
-                    message.save()
-                except Product.DoesNotExist:
-                    pass
             
             if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
                 return JsonResponse({'status': 'success', 'message': f'Message sent to {recipient.username}'})

@@ -46,9 +46,38 @@
                     <div class="payment-info">
                         <div class="payment-order">
                             <span class="label">Order:</span>
-                            <a href="{% url 'order_detail' payment.order.id %}" class="order-link">
-                                #{{ payment.order.id }}
-                            </a>
+                            <!-- For order ID display -->
+                            <td>
+                                {% if payment.payment_type == 'recharge' %}
+                                    <span>Recharge Transaction Balance Update</span>
+                                {% elif payment.order %}
+                                    <a href="{% url 'order_detail' order_id=payment.order.id %}">#{{ payment.order.id }}</a>
+                                {% else %}
+                                    N/A
+                                {% endif %}
+                            </td>
+                            
+                            <!-- For order date display -->
+                            <td>
+                                {% if payment.payment_type == 'recharge' %}
+                                    <!-- 移除了文本显示 -->
+                                {% elif payment.order %}
+                                    {{ payment.order.created_at|date:"Y-m-d H:i" }}
+                                {% else %}
+                                    N/A
+                                {% endif %}
+                            </td>
+                            
+                            <!-- For any other order-related information -->
+                            <td>
+                                {% if payment.payment_type == 'recharge' %}
+                                    <!-- 移除了文本显示 -->
+                                {% elif payment.order %}
+                                    {{ payment.order.status }}
+                                {% else %}
+                                    N/A
+                                {% endif %}
+                            </td>
                         </div>
                         <div class="payment-method">
                             <span class="label">Payment Method:</span>
